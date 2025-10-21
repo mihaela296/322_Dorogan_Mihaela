@@ -1,0 +1,286 @@
+﻿<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+
+    <!-- Цвета из руководства по стилю -->
+    <Color x:Key="PrimaryColor1">#FFB5D5CA</Color>
+    <Color x:Key="PrimaryColor2">#FFE0A9AF</Color>
+    <Color x:Key="SecondaryColor1">#FFD1EEFC</Color>
+    <Color x:Key="SecondaryColor2">#FFFFFCD6</Color>
+    <Color x:Key="TextColorWhite">#FFFFFFFF</Color>
+    <Color x:Key="TextColorBlack">#FF000000</Color>
+
+    <!-- Кисти для использования -->
+    <SolidColorBrush x:Key="PrimaryBrush1" Color="{StaticResource PrimaryColor1}"/>
+    <SolidColorBrush x:Key="PrimaryBrush2" Color="{StaticResource PrimaryColor2}"/>
+    <SolidColorBrush x:Key="SecondaryBrush1" Color="{StaticResource SecondaryColor1}"/>
+    <SolidColorBrush x:Key="SecondaryBrush2" Color="{StaticResource SecondaryColor2}"/>
+    <SolidColorBrush x:Key="TextBrushWhite" Color="{StaticResource TextColorWhite}"/>
+    <SolidColorBrush x:Key="TextBrushBlack" Color="{StaticResource TextColorBlack}"/>
+
+    <!-- Основные стили окон -->
+    <Style TargetType="Window">
+        <Setter Property="Background" Value="{StaticResource PrimaryBrush1}"/>
+        <Setter Property="FontFamily" Value="Tahoma"/>
+        <Setter Property="FontSize" Value="12"/>
+    </Style>
+
+    <Style TargetType="Page">
+        <Setter Property="Background" Value="{StaticResource PrimaryBrush1}"/>
+        <Setter Property="FontFamily" Value="Tahoma"/>
+        <Setter Property="FontSize" Value="12"/>
+    </Style>
+
+    <!-- Стиль кнопки -->
+    <Style TargetType="Button">
+        <Setter Property="Height" Value="35"/>
+        <Setter Property="Padding" Value="8,4"/>
+        <Setter Property="Margin" Value="5"/>
+        <Setter Property="FontFamily" Value="Tahoma"/>
+        <Setter Property="FontSize" Value="12"/>
+        <Setter Property="Background" Value="{StaticResource PrimaryBrush2}"/>
+        <Setter Property="Foreground" Value="{StaticResource TextBrushBlack}"/>
+        <Setter Property="BorderThickness" Value="1"/>
+        <Setter Property="BorderBrush" Value="{StaticResource TextBrushBlack}"/>
+        <Setter Property="HorizontalContentAlignment" Value="Center"/>
+        <Setter Property="VerticalContentAlignment" Value="Center"/>
+    </Style>
+
+    <!-- Стиль кнопки-ссылки -->
+    <Style x:Key="LinkButtonStyle" TargetType="Button">
+        <Setter Property="Background" Value="Transparent"/>
+        <Setter Property="Foreground" Value="{StaticResource TextBrushBlack}"/>
+        <Setter Property="BorderThickness" Value="0"/>
+        <Setter Property="Padding" Value="5,2"/>
+        <Setter Property="Margin" Value="2"/>
+        <Setter Property="FontFamily" Value="Tahoma"/>
+        <Setter Property="FontSize" Value="11"/>
+        <Setter Property="HorizontalContentAlignment" Value="Center"/>
+        <Setter Property="VerticalContentAlignment" Value="Center"/>
+        <Setter Property="Cursor" Value="Hand"/>
+        <Style.Triggers>
+            <Trigger Property="IsMouseOver" Value="True">
+                <Setter Property="Foreground" Value="{StaticResource PrimaryColor2}"/>
+                <Setter Property="TextBlock.TextDecorations" Value="Underline"/>
+            </Trigger>
+        </Style.Triggers>
+    </Style>
+
+    <!-- Стиль текстового поля -->
+    <Style TargetType="TextBox">
+        <Setter Property="Height" Value="30"/>
+        <Setter Property="Padding" Value="5"/>
+        <Setter Property="Margin" Value="5"/>
+        <Setter Property="FontFamily" Value="Tahoma"/>
+        <Setter Property="FontSize" Value="12"/>
+        <Setter Property="Background" Value="{StaticResource SecondaryBrush2}"/>
+        <Setter Property="Foreground" Value="{StaticResource TextBrushBlack}"/>
+        <Setter Property="BorderThickness" Value="1"/>
+        <Setter Property="BorderBrush" Value="{StaticResource TextBrushBlack}"/>
+        <Setter Property="CaretBrush" Value="{StaticResource TextBrushBlack}"/>
+    </Style>
+
+    <!-- Стиль PasswordBox -->
+    <Style TargetType="PasswordBox">
+        <Setter Property="Height" Value="30"/>
+        <Setter Property="Padding" Value="5"/>
+        <Setter Property="Margin" Value="5"/>
+        <Setter Property="FontFamily" Value="Tahoma"/>
+        <Setter Property="FontSize" Value="12"/>
+        <Setter Property="Background" Value="{StaticResource SecondaryBrush2}"/>
+        <Setter Property="Foreground" Value="{StaticResource TextBrushBlack}"/>
+        <Setter Property="BorderThickness" Value="1"/>
+        <Setter Property="BorderBrush" Value="{StaticResource TextBrushBlack}"/>
+    </Style>
+
+    <!-- Стиль метки -->
+    <Style TargetType="Label">
+        <Setter Property="FontFamily" Value="Tahoma"/>
+        <Setter Property="FontSize" Value="12"/>
+        <Setter Property="Foreground" Value="{StaticResource TextBrushBlack}"/>
+        <Setter Property="VerticalAlignment" Value="Center"/>
+        <Setter Property="HorizontalAlignment" Value="Left"/>
+        <Setter Property="Padding" Value="5,2"/>
+    </Style>
+
+    <!-- Стиль комбобокса -->
+    <Style TargetType="ComboBox">
+        <Setter Property="Height" Value="30"/>
+        <Setter Property="Margin" Value="5"/>
+        <Setter Property="FontFamily" Value="Tahoma"/>
+        <Setter Property="FontSize" Value="12"/>
+        <Setter Property="Background" Value="{StaticResource SecondaryBrush2}"/>
+        <Setter Property="Foreground" Value="{StaticResource TextBrushBlack}"/>
+        <Setter Property="BorderThickness" Value="1"/>
+        <Setter Property="BorderBrush" Value="{StaticResource TextBrushBlack}"/>
+    </Style>
+
+    <!-- Стиль DatePicker -->
+    <Style TargetType="DatePicker">
+        <Setter Property="Height" Value="30"/>
+        <Setter Property="Margin" Value="5"/>
+        <Setter Property="FontFamily" Value="Tahoma"/>
+        <Setter Property="FontSize" Value="12"/>
+        <Setter Property="Background" Value="{StaticResource SecondaryBrush2}"/>
+        <Setter Property="Foreground" Value="{StaticResource TextBrushBlack}"/>
+        <Setter Property="BorderThickness" Value="1"/>
+        <Setter Property="BorderBrush" Value="{StaticResource TextBrushBlack}"/>
+    </Style>
+
+    <!-- Стиль DataGrid -->
+    <Style TargetType="DataGrid">
+        <Setter Property="Background" Value="{StaticResource SecondaryBrush1}"/>
+        <Setter Property="Foreground" Value="{StaticResource TextBrushBlack}"/>
+        <Setter Property="BorderThickness" Value="1"/>
+        <Setter Property="BorderBrush" Value="{StaticResource TextBrushBlack}"/>
+        <Setter Property="RowBackground" Value="{StaticResource SecondaryBrush2}"/>
+        <Setter Property="AlternatingRowBackground" Value="{StaticResource SecondaryBrush1}"/>
+        <Setter Property="GridLinesVisibility" Value="Horizontal"/>
+        <Setter Property="HorizontalGridLinesBrush" Value="{StaticResource PrimaryBrush2}"/>
+        <Setter Property="VerticalGridLinesBrush" Value="{StaticResource PrimaryBrush2}"/>
+        <Setter Property="HeadersVisibility" Value="Column"/>
+        <Setter Property="FontFamily" Value="Tahoma"/>
+        <Setter Property="FontSize" Value="11"/>
+        <Setter Property="AutoGenerateColumns" Value="False"/>
+        <Setter Property="CanUserAddRows" Value="False"/>
+        <Setter Property="CanUserDeleteRows" Value="False"/>
+        <Setter Property="CanUserReorderColumns" Value="False"/>
+        <Setter Property="CanUserResizeColumns" Value="True"/>
+        <Setter Property="CanUserResizeRows" Value="False"/>
+        <Setter Property="CanUserSortColumns" Value="True"/>
+    </Style>
+
+    <!-- Стиль заголовков DataGrid -->
+    <Style TargetType="DataGridColumnHeader">
+        <Setter Property="Background" Value="{StaticResource PrimaryBrush2}"/>
+        <Setter Property="Foreground" Value="{StaticResource TextBrushBlack}"/>
+        <Setter Property="FontWeight" Value="Bold"/>
+        <Setter Property="Height" Value="30"/>
+        <Setter Property="Padding" Value="5"/>
+        <Setter Property="BorderThickness" Value="0,0,1,1"/>
+        <Setter Property="BorderBrush" Value="{StaticResource TextBrushBlack}"/>
+    </Style>
+
+    <!-- Стиль ячеек DataGrid -->
+    <Style TargetType="DataGridCell">
+        <Setter Property="Background" Value="Transparent"/>
+        <Setter Property="Foreground" Value="{StaticResource TextBrushBlack}"/>
+        <Setter Property="BorderThickness" Value="0,0,1,1"/>
+        <Setter Property="BorderBrush" Value="{StaticResource PrimaryBrush2}"/>
+        <Setter Property="Padding" Value="5"/>
+        <Setter Property="VerticalAlignment" Value="Center"/>
+    </Style>
+
+    <!-- Стиль ListView -->
+    <Style TargetType="ListView">
+        <Setter Property="Background" Value="{StaticResource SecondaryBrush1}"/>
+        <Setter Property="Foreground" Value="{StaticResource TextBrushBlack}"/>
+        <Setter Property="BorderThickness" Value="1"/>
+        <Setter Property="BorderBrush" Value="{StaticResource TextBrushBlack}"/>
+        <Setter Property="FontFamily" Value="Tahoma"/>
+        <Setter Property="FontSize" Value="11"/>
+    </Style>
+
+    <!-- Стиль TextBlock -->
+    <Style TargetType="TextBlock">
+        <Setter Property="FontFamily" Value="Tahoma"/>
+        <Setter Property="FontSize" Value="12"/>
+        <Setter Property="Foreground" Value="{StaticResource TextBrushBlack}"/>
+        <Setter Property="VerticalAlignment" Value="Center"/>
+    </Style>
+
+    <!-- Стиль GroupBox -->
+    <Style TargetType="GroupBox">
+        <Setter Property="Background" Value="{StaticResource SecondaryBrush1}"/>
+        <Setter Property="Foreground" Value="{StaticResource TextBrushBlack}"/>
+        <Setter Property="BorderThickness" Value="1"/>
+        <Setter Property="BorderBrush" Value="{StaticResource TextBrushBlack}"/>
+        <Setter Property="Padding" Value="10"/>
+        <Setter Property="Margin" Value="5"/>
+        <Setter Property="FontFamily" Value="Tahoma"/>
+        <Setter Property="FontSize" Value="12"/>
+        <Setter Property="FontWeight" Value="Bold"/>
+    </Style>
+
+    <!-- Стиль CheckBox -->
+    <Style TargetType="CheckBox">
+        <Setter Property="FontFamily" Value="Tahoma"/>
+        <Setter Property="FontSize" Value="12"/>
+        <Setter Property="Foreground" Value="{StaticResource TextBrushBlack}"/>
+        <Setter Property="VerticalAlignment" Value="Center"/>
+        <Setter Property="Margin" Value="5"/>
+    </Style>
+
+    <!-- Стиль RadioButton -->
+    <Style TargetType="RadioButton">
+        <Setter Property="FontFamily" Value="Tahoma"/>
+        <Setter Property="FontSize" Value="12"/>
+        <Setter Property="Foreground" Value="{StaticResource TextBrushBlack}"/>
+        <Setter Property="VerticalAlignment" Value="Center"/>
+        <Setter Property="Margin" Value="5"/>
+    </Style>
+
+    <!-- Стиль Menu -->
+    <Style TargetType="Menu">
+        <Setter Property="Background" Value="{StaticResource PrimaryBrush2}"/>
+        <Setter Property="Foreground" Value="{StaticResource TextBrushBlack}"/>
+        <Setter Property="FontFamily" Value="Tahoma"/>
+        <Setter Property="FontSize" Value="12"/>
+    </Style>
+
+    <!-- Стиль ToolBar -->
+    <Style TargetType="ToolBar">
+        <Setter Property="Background" Value="{StaticResource PrimaryBrush1}"/>
+        <Setter Property="Foreground" Value="{StaticResource TextBrushBlack}"/>
+        <Setter Property="BorderThickness" Value="0,0,0,1"/>
+        <Setter Property="BorderBrush" Value="{StaticResource PrimaryBrush2}"/>
+    </Style>
+
+    <!-- Стиль StatusBar -->
+    <Style TargetType="StatusBar">
+        <Setter Property="Background" Value="{StaticResource PrimaryBrush2}"/>
+        <Setter Property="Foreground" Value="{StaticResource TextBrushBlack}"/>
+        <Setter Property="FontFamily" Value="Tahoma"/>
+        <Setter Property="FontSize" Value="11"/>
+    </Style>
+
+    <!-- Стиль TabControl -->
+    <Style TargetType="TabControl">
+        <Setter Property="Background" Value="{StaticResource SecondaryBrush1}"/>
+        <Setter Property="Foreground" Value="{StaticResource TextBrushBlack}"/>
+        <Setter Property="BorderThickness" Value="1"/>
+        <Setter Property="BorderBrush" Value="{StaticResource TextBrushBlack}"/>
+        <Setter Property="FontFamily" Value="Tahoma"/>
+        <Setter Property="FontSize" Value="11"/>
+    </Style>
+
+    <!-- Стиль TabItem -->
+    <Style TargetType="TabItem">
+        <Setter Property="Background" Value="{StaticResource PrimaryBrush1}"/>
+        <Setter Property="Foreground" Value="{StaticResource TextBrushBlack}"/>
+        <Setter Property="BorderThickness" Value="1"/>
+        <Setter Property="BorderBrush" Value="{StaticResource TextBrushBlack}"/>
+        <Setter Property="Padding" Value="10,5"/>
+        <Setter Property="FontFamily" Value="Tahoma"/>
+        <Setter Property="FontSize" Value="11"/>
+        <Setter Property="FontWeight" Value="Bold"/>
+        <Style.Triggers>
+            <Trigger Property="IsSelected" Value="True">
+                <Setter Property="Background" Value="{StaticResource PrimaryBrush2}"/>
+            </Trigger>
+        </Style.Triggers>
+    </Style>
+
+    <!-- Стиль Border -->
+    <Style TargetType="Border">
+        <Setter Property="Background" Value="{StaticResource SecondaryBrush2}"/>
+        <Setter Property="BorderBrush" Value="{StaticResource TextBrushBlack}"/>
+        <Setter Property="BorderThickness" Value="1"/>
+        <Setter Property="CornerRadius" Value="5"/>
+    </Style>
+
+    <!-- Стиль StackPanel -->
+    <Style TargetType="StackPanel">
+        <Setter Property="Background" Value="Transparent"/>
+    </Style>
+
+</ResourceDictionary>
