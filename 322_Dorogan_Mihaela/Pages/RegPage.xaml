@@ -3,61 +3,92 @@
       xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
       Title="Регистрация">
 
-    <Grid>
+    <Grid Background="{StaticResource PrimaryBrush1}">
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto"/>
             <RowDefinition Height="*"/>
         </Grid.RowDefinitions>
 
         <!-- Заголовок -->
-        <TextBlock Grid.Row="0" Text="РЕГИСТРАЦИЯ ПОЛЬЗОВАТЕЛЯ" FontSize="18" FontWeight="Bold" 
-                   HorizontalAlignment="Center" Margin="20"/>
-
-        <!-- Форма регистрации -->
-        <Border Grid.Row="1" Width="400" Height="450" HorizontalAlignment="Center" VerticalAlignment="Center"
-                Background="{StaticResource SecondaryBrush2}" BorderBrush="{StaticResource TextBrushBlack}" 
-                BorderThickness="1" CornerRadius="5">
-            <Grid Margin="25">
-                <Grid.RowDefinitions>
-                    <RowDefinition Height="Auto"/>
-                    <RowDefinition Height="Auto"/>
-                    <RowDefinition Height="Auto"/>
-                    <RowDefinition Height="Auto"/>
-                    <RowDefinition Height="Auto"/>
-                    <RowDefinition Height="Auto"/>
-                    <RowDefinition Height="Auto"/>
-                    <RowDefinition Height="*"/>
-                    <RowDefinition Height="Auto"/>
-                </Grid.RowDefinitions>
-
-                <!-- Логин -->
-                <Label Grid.Row="0" Content="Логин:" FontWeight="Bold" Margin="0,5"/>
-                <TextBox Grid.Row="1" x:Name="TbLogin" Height="30" Margin="0,0,0,10"
-                         ToolTip="Придумайте логин для входа в систему"/>
-
-                <!-- Пароль -->
-                <Label Grid.Row="2" Content="Пароль:" FontWeight="Bold" Margin="0,0,0,5"/>
-                <PasswordBox Grid.Row="3" x:Name="PbPassword" Height="30" Margin="0,0,0,10"
-                             ToolTip="Пароль должен содержать минимум 6 символов, только латинские буквы и цифры"/>
-
-                <!-- Подтверждение пароля -->
-                <Label Grid.Row="4" Content="Подтверждение пароля:" FontWeight="Bold" Margin="0,0,0,5"/>
-                <PasswordBox Grid.Row="5" x:Name="PbConfirmPassword" Height="30" Margin="0,0,0,10"
-                             ToolTip="Повторите введенный пароль"/>
-
-                <!-- ФИО -->
-                <Label Grid.Row="6" Content="ФИО:" FontWeight="Bold" Margin="0,0,0,5"/>
-                <TextBox Grid.Row="7" x:Name="TbFIO" Height="30" Margin="0,0,0,15"
-                         ToolTip="Введите ваше полное имя"/>
-
-                <!-- Кнопки -->
-                <StackPanel Grid.Row="8" Orientation="Horizontal" HorizontalAlignment="Center">
-                    <Button x:Name="BtnRegister" Content="Зарегистрироваться" Width="150" Height="35"
-                            Click="BtnRegister_Click" FontWeight="Bold" Margin="0,0,10,0"/>
-                    <Button x:Name="BtnCancel" Content="Отмена" Width="80" Height="35"
-                            Click="BtnCancel_Click"/>
-                </StackPanel>
-            </Grid>
+        <Border Grid.Row="0" Background="{StaticResource PrimaryBrush2}" 
+                BorderBrush="{StaticResource TextBrushBlack}" BorderThickness="0,0,0,1">
+            <TextBlock Text="РЕГИСТРАЦИЯ НОВОГО ПОЛЬЗОВАТЕЛЯ" FontSize="18" FontWeight="Bold" 
+                       HorizontalAlignment="Center" Padding="20"/>
         </Border>
+
+        <!-- Основной контент -->
+        <Grid Grid.Row="1">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="450"/>
+                <ColumnDefinition Width="*"/>
+            </Grid.ColumnDefinitions>
+
+            <!-- Форма регистрации -->
+            <Border Grid.Column="1" Background="{StaticResource SecondaryBrush2}" 
+                    BorderBrush="{StaticResource TextBrushBlack}" BorderThickness="1" 
+                    CornerRadius="5" VerticalAlignment="Center">
+                <Grid Margin="25">
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="*"/>
+                        <RowDefinition Height="Auto"/>
+                    </Grid.RowDefinitions>
+
+                    <!-- Логин -->
+                    <Label Grid.Row="0" Content="Логин:*" FontWeight="Bold" Margin="0,5"/>
+                    <TextBox Grid.Row="1" x:Name="TbLogin" Height="35" Margin="0,0,0,10"
+                             ToolTip="Придумайте уникальный логин для входа в систему"
+                             TextChanged="TbLogin_TextChanged"/>
+
+                    <!-- Пароль -->
+                    <Label Grid.Row="2" Content="Пароль:*" FontWeight="Bold" Margin="0,0,0,5"/>
+                    <PasswordBox Grid.Row="3" x:Name="PbPassword" Height="35" Margin="0,0,0,10"
+                                 ToolTip="Пароль должен содержать минимум 6 символов, только латинские буквы и цифры, хотя бы одну цифру и одну букву"
+                                 PasswordChanged="PbPassword_PasswordChanged"/>
+
+                    <!-- Подтверждение пароля -->
+                    <Label Grid.Row="4" Content="Подтверждение пароля:*" FontWeight="Bold" Margin="0,0,0,5"/>
+                    <PasswordBox Grid.Row="5" x:Name="PbConfirmPassword" Height="35" Margin="0,0,0,10"
+                                 ToolTip="Повторите введенный пароль"
+                                 PasswordChanged="PbConfirmPassword_PasswordChanged"/>
+
+                    <!-- ФИО -->
+                    <Label Grid.Row="6" Content="ФИО:*" FontWeight="Bold" Margin="0,0,0,5"/>
+                    <TextBox Grid.Row="7" x:Name="TbFIO" Height="35" Margin="0,0,0,15"
+                             ToolTip="Введите ваше полное имя (Фамилия Имя Отчество)"
+                             TextChanged="TbFIO_TextChanged"/>
+
+                    <!-- Требования к паролю -->
+                    <Border Grid.Row="8" Background="{StaticResource SecondaryBrush1}" 
+                            BorderBrush="LightGray" BorderThickness="1" CornerRadius="3" 
+                            Margin="0,0,0,15" Padding="10">
+                        <TextBlock Text="Требования к паролю:&#10;• Минимум 6 символов&#10;• Только латинские буквы и цифры&#10;• Хотя бы одна цифра и одна буква" 
+                                  FontSize="10" TextWrapping="Wrap"/>
+                    </Border>
+
+                    <!-- Сообщение об ошибках -->
+                    <TextBlock Grid.Row="9" x:Name="TbError" Foreground="Red" FontSize="11" 
+                              TextWrapping="Wrap" Margin="0,0,0,15" Visibility="Collapsed"/>
+
+                    <!-- Кнопки -->
+                    <StackPanel Grid.Row="10" Orientation="Horizontal" 
+                                HorizontalAlignment="Center">
+                        <Button x:Name="BtnRegister" Content="ЗАРЕГИСТРИРОВАТЬСЯ" 
+                                Width="180" Height="40" Click="BtnRegister_Click" 
+                                FontWeight="Bold" FontSize="12" Margin="0,0,10,0"/>
+                        <Button x:Name="BtnCancel" Content="ОТМЕНА" Width="100" Height="40" 
+                                Click="BtnCancel_Click"/>
+                    </StackPanel>
+                </Grid>
+            </Border>
+        </Grid>
     </Grid>
 </Page>

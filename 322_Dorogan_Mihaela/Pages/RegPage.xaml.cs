@@ -5,6 +5,7 @@ using System.Text;
 using System.Text.RegularExpressions;
 using System.Windows;
 using System.Windows.Controls;
+using System.Data.Entity;
 
 namespace _322_Dorogan_Mihaela.Pages
 {
@@ -46,42 +47,82 @@ namespace _322_Dorogan_Mihaela.Pages
             return true;
         }
 
+        private void ShowError(string message)
+        {
+            TbError.Text = message;
+            TbError.Visibility = Visibility.Visible;
+        }
+
+        private void ClearError()
+        {
+            TbError.Text = string.Empty;
+            TbError.Visibility = Visibility.Collapsed;
+        }
+
+        private void TbLogin_TextChanged(object sender, TextChangedEventArgs e)
+        {
+            ClearError();
+        }
+
+        private void PbPassword_PasswordChanged(object sender, RoutedEventArgs e)
+        {
+            ClearError();
+        }
+
+        private void PbConfirmPassword_PasswordChanged(object sender, RoutedEventArgs e)
+        {
+            ClearError();
+        }
+
+        private void TbFIO_TextChanged(object sender, TextChangedEventArgs e)
+        {
+            ClearError();
+        }
+
         private void BtnRegister_Click(object sender, RoutedEventArgs e)
         {
             // Валидация полей
             if (string.IsNullOrWhiteSpace(TbLogin.Text))
             {
-                MessageBox.Show("Введите логин!", "Ошибка", MessageBoxButton.OK, MessageBoxImage.Warning);
+                ShowError("Введите логин!");
                 TbLogin.Focus();
                 return;
             }
 
             if (string.IsNullOrWhiteSpace(PbPassword.Password))
             {
-                MessageBox.Show("Введите пароль!", "Ошибка", MessageBoxButton.OK, MessageBoxImage.Warning);
+                ShowError("Введите пароль!");
                 PbPassword.Focus();
                 return;
             }
 
             if (string.IsNullOrWhiteSpace(PbConfirmPassword.Password))
             {
-                MessageBox.Show("Подтвердите пароль!", "Ошибка", MessageBoxButton.OK, MessageBoxImage.Warning);
+                ShowError("Подтвердите пароль!");
                 PbConfirmPassword.Focus();
                 return;
             }
 
             if (string.IsNullOrWhiteSpace(TbFIO.Text))
             {
-                MessageBox.Show("Введите ФИО!", "Ошибка", MessageBoxButton.OK, MessageBoxImage.Warning);
+                ShowError("Введите ФИО!");
                 TbFIO.Focus();
+                return;
+            }
+
+            // Проверка логина (только латинские буквы и цифры)
+            if (!Regex.IsMatch(TbLogin.Text, @"^[a-zA-Z0-9]+$"))
+            {
+                ShowError("Логин должен содержать только латинские буквы и цифры!");
+                TbLogin.Focus();
+                TbLogin.SelectAll();
                 return;
             }
 
             // Проверка пароля
             if (!ValidatePassword(PbPassword.Password))
             {
-                MessageBox.Show("Пароль должен содержать:\n• Минимум 6 символов\n• Только латинские буквы и цифры\n• Хотя бы одну цифру и одну букву",
-                    "Ошибка", MessageBoxButton.OK, MessageBoxImage.Warning);
+                ShowError("Пароль не соответствует требованиям!\n\nТребования к паролю:\n• Минимум 6 символов\n• Только латинские буквы и цифры\n• Хотя бы одна цифра и одна буква");
                 PbPassword.Clear();
                 PbConfirmPassword.Clear();
                 PbPassword.Focus();
@@ -91,7 +132,7 @@ namespace _322_Dorogan_Mihaela.Pages
             // Проверка совпадения паролей
             if (PbPassword.Password != PbConfirmPassword.Password)
             {
-                MessageBox.Show("Пароли не совпадают!", "Ошибка", MessageBoxButton.OK, MessageBoxImage.Warning);
+                ShowError("Пароли не совпадают!");
                 PbConfirmPassword.Clear();
                 PbConfirmPassword.Focus();
                 return;
@@ -102,10 +143,9 @@ namespace _322_Dorogan_Mihaela.Pages
             {
                 using (var db = new Entities())
                 {
-                    if (db.Users.Any(u => u.Login == TbLogin.Text))
+                    if (db.Users.Any(u => u.Login == TbLogin.Text.Trim()))
                     {
-                        MessageBox.Show("Пользователь с таким логином уже существует!", "Ошибка",
-                            MessageBoxButton.OK, MessageBoxImage.Warning);
+                        ShowError("Пользователь с таким логином уже существует!");
                         TbLogin.Focus();
                         TbLogin.SelectAll();
                         return;
@@ -123,16 +163,15 @@ namespace _322_Dorogan_Mihaela.Pages
                     db.Users.Add(newUser);
                     db.SaveChanges();
 
-                    MessageBox.Show("Регистрация прошла успешно!\nТеперь вы можете войти в систему.", "Успех",
-                        MessageBoxButton.OK, MessageBoxImage.Information);
+                    MessageBox.Show("Регистрация прошла успешно!\nТеперь вы можете войти в систему используя ваш логин и пароль.",
+                        "Успешная регистрация", MessageBoxButton.OK, MessageBoxImage.Information);
 
                     NavigationService.GoBack();
                 }
             }
             catch (Exception ex)
             {
-                MessageBox.Show($"Ошибка при регистрации: {ex.Message}", "Ошибка",
-                    MessageBoxButton.OK, MessageBoxImage.Error);
+                ShowError($"Ошибка при регистрации: {ex.Message}");
             }
         }
 

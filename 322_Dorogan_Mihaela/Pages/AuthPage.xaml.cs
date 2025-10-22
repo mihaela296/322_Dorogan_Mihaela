@@ -1,13 +1,12 @@
-﻿using _322_Dorogan_Mihaela;
-using _322_Dorogan_Mihaela.Pages;
-using System;
+﻿using System;
 using System.Linq;
 using System.Security.Cryptography;
 using System.Text;
 using System.Windows;
 using System.Windows.Controls;
+using System.Data.Entity;
 
-namespace YourProjectName.Pages
+namespace _322_Dorogan_Mihaela.Pages
 {
     public partial class AuthPage : Page
     {
@@ -18,6 +17,13 @@ namespace YourProjectName.Pages
         {
             InitializeComponent();
             TbLogin.Focus();
+            UpdateMainWindowInfo();
+        }
+
+        private void UpdateMainWindowInfo()
+        {
+            var mainWindow = Application.Current.MainWindow as MainWindow;
+            mainWindow?.UpdateUserInfo("", "Не авторизован");
         }
 
         private string GetHash(string input)
@@ -36,19 +42,53 @@ namespace YourProjectName.Pages
                 .Select(s => s[_random.Next(s.Length)]).ToArray());
         }
 
+        private void ShowError(string message)
+        {
+            TbError.Text = message;
+            TbError.Visibility = Visibility.Visible;
+        }
+
+        private void ClearError()
+        {
+            TbError.Text = string.Empty;
+            TbError.Visibility = Visibility.Collapsed;
+        }
+
+        private void TbLogin_TextChanged(object sender, TextChangedEventArgs e)
+        {
+            ClearError();
+        }
+
+        private void PbPassword_PasswordChanged(object sender, RoutedEventArgs e)
+        {
+            ClearError();
+        }
+
+        private void TbCaptchaInput_TextChanged(object sender, TextChangedEventArgs e)
+        {
+            ClearError();
+        }
+
+        private void BtnRefreshCaptcha_Click(object sender, RoutedEventArgs e)
+        {
+            GenerateCaptcha();
+            TbCaptchaInput.Clear();
+            TbCaptchaInput.Focus();
+        }
+
         private void BtnLogin_Click(object sender, RoutedEventArgs e)
         {
-            // Проверка заполнения полей
+            // Валидация полей
             if (string.IsNullOrWhiteSpace(TbLogin.Text))
             {
-                MessageBox.Show("Введите логин!", "Ошибка", MessageBoxButton.OK, MessageBoxImage.Warning);
+                ShowError("Введите логин!");
                 TbLogin.Focus();
                 return;
             }
 
             if (string.IsNullOrWhiteSpace(PbPassword.Password))
             {
-                MessageBox.Show("Введите пароль!", "Ошибка", MessageBoxButton.OK, MessageBoxImage.Warning);
+                ShowError("Введите пароль!");
                 PbPassword.Focus();
                 return;
             }
@@ -56,15 +96,23 @@ namespace YourProjectName.Pages
             // Проверка капчи после 3 неудачных попыток
             if (_failedAttempts >= 3)
             {
-                if (SpCaptcha.Visibility != System.Windows.Visibility.Visible)
+                if (SpCaptcha.Visibility != Visibility.Visible)
                 {
-                    SpCaptcha.Visibility = System.Windows.Visibility.Visible;
+                    SpCaptcha.Visibility = Visibility.Visible;
                     GenerateCaptcha();
+                }
+
+                if (string.IsNullOrWhiteSpace(TbCaptchaInput.Text))
+                {
+                    ShowError("Введите код с картинки!");
+                    TbCaptchaInput.Focus();
+                    return;
                 }
 
                 if (TbCaptchaInput.Text != TbCaptcha.Text)
                 {
-                    MessageBox.Show("Неверно введена капча!", "Ошибка", MessageBoxButton.OK, MessageBoxImage.Error);
+                    _failedAttempts++;
+                    ShowError($"Неверно введена капча! Осталось попыток: {5 - _failedAttempts}");
                     GenerateCaptcha();
                     TbCaptchaInput.Clear();
                     TbCaptchaInput.Focus();
@@ -73,35 +121,51 @@ namespace YourProjectName.Pages
             }
 
             // Проверка учетных данных
-            string hashedPassword = GetHash(PbPassword.Password);
-
             try
             {
+                string hashedPassword = GetHash(PbPassword.Password);
+
                 using (var db = new Entities())
                 {
                     var user = db.Users
                         .AsNoTracking()
-                        .FirstOrDefault(u => u.Login == TbLogin.Text && u.Password == hashedPassword);
+                        .FirstOrDefault(u => u.Login == TbLogin.Text.Trim() && u.Password == hashedPassword);
 
                     if (user == null)
                     {
                         _failedAttempts++;
-                        MessageBox.Show("Неверный логин или пароль!", "Ошибка",
-                            MessageBoxButton.OK, MessageBoxImage.Error);
 
-                        if (_failedAttempts >= 3 && SpCaptcha.Visibility != System.Windows.Visibility.Visible)
+                        if (_failedAttempts >= 3 && SpCaptcha.Visibility != Visibility.Visible)
                         {
-                            SpCaptcha.Visibility = System.Windows.Visibility.Visible;
+                            SpCaptcha.Visibility = Visibility.Visible;
                             GenerateCaptcha();
+                            ShowError("Неверный логин или пароль! Введите капчу для продолжения.");
                         }
+                        else if (_failedAttempts >= 5)
+                        {
+                            ShowError("Превышено количество попыток входа. Попробуйте позже.");
+                            BtnLogin.IsEnabled = false;
+                        }
+                        else
+                        {
+                            ShowError($"Неверный логин или пароль! Попытка {_failedAttempts} из 5");
+                        }
+
+                        PbPassword.Clear();
+                        PbPassword.Focus();
                         return;
                     }
 
                     // Успешная авторизация
                     _failedAttempts = 0;
-                    SpCaptcha.Visibility = System.Windows.Visibility.Collapsed;
+                    ClearError();
+                    SpCaptcha.Visibility = Visibility.Collapsed;
 
-                    MessageBox.Show($"Добро пожаловать, {user.FIO}!", "Успех",
+                    // Обновление информации в главном окне
+                    var mainWindow = Application.Current.MainWindow as MainWindow;
+                    mainWindow?.UpdateUserInfo($"{user.FIO} ({user.Role})", "Авторизован");
+
+                    MessageBox.Show($"Добро пожаловать, {user.FIO}!", "Успешная авторизация",
                         MessageBoxButton.OK, MessageBoxImage.Information);
 
                     // Переход в зависимости от роли
@@ -119,8 +183,7 @@ namespace YourProjectName.Pages
             }
             catch (Exception ex)
             {
-                MessageBox.Show($"Ошибка при авторизации: {ex.Message}", "Ошибка",
-                    MessageBoxButton.OK, MessageBoxImage.Error);
+                ShowError($"Ошибка при авторизации: {ex.Message}");
             }
         }
 
@@ -133,5 +196,6 @@ namespace YourProjectName.Pages
         {
             NavigationService.Navigate(new ChangePasswordPage());
         }
+
     }
 }

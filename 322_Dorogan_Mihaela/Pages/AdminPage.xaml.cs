@@ -1,6 +1,7 @@
-﻿using _322_Dorogan_Mihaela.Pages;
-using System.Windows;
+﻿using System.Windows;
 using System.Windows.Controls;
+using System.Linq;
+using System.Data.Entity;
 
 namespace _322_Dorogan_Mihaela.Pages
 {

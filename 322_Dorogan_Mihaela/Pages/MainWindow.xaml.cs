@@ -2,6 +2,8 @@
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Threading;
+using System.Linq;
+using System.Data.Entity;
 
 namespace _322_Dorogan_Mihaela.Pages
 {
@@ -50,5 +52,6 @@ namespace _322_Dorogan_Mihaela.Pages
                 e.Cancel = true;
             }
         }
+
     }
 }

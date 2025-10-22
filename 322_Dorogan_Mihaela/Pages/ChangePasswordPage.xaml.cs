@@ -5,6 +5,7 @@ using System.Text;
 using System.Text.RegularExpressions;
 using System.Windows;
 using System.Windows.Controls;
+using System.Data.Entity;
 
 namespace _322_Dorogan_Mihaela.Pages
 {
@@ -46,33 +47,45 @@ namespace _322_Dorogan_Mihaela.Pages
             return true;
         }
 
+        private void ShowError(string message)
+        {
+            TbError.Text = message;
+            TbError.Visibility = Visibility.Visible;
+        }
+
+        private void ClearError()
+        {
+            TbError.Text = string.Empty;
+            TbError.Visibility = Visibility.Collapsed;
+        }
+
         private void BtnChangePassword_Click(object sender, RoutedEventArgs e)
         {
             // Валидация полей
             if (string.IsNullOrWhiteSpace(TbLogin.Text))
             {
-                MessageBox.Show("Введите логин!", "Ошибка", MessageBoxButton.OK, MessageBoxImage.Warning);
+                ShowError("Введите логин!");
                 TbLogin.Focus();
                 return;
             }
 
             if (string.IsNullOrWhiteSpace(PbCurrentPassword.Password))
             {
-                MessageBox.Show("Введите текущий пароль!", "Ошибка", MessageBoxButton.OK, MessageBoxImage.Warning);
+                ShowError("Введите текущий пароль!");
                 PbCurrentPassword.Focus();
                 return;
             }
 
             if (string.IsNullOrWhiteSpace(PbNewPassword.Password))
             {
-                MessageBox.Show("Введите новый пароль!", "Ошибка", MessageBoxButton.OK, MessageBoxImage.Warning);
+                ShowError("Введите новый пароль!");
                 PbNewPassword.Focus();
                 return;
             }
 
             if (string.IsNullOrWhiteSpace(PbConfirmPassword.Password))
             {
-                MessageBox.Show("Подтвердите новый пароль!", "Ошибка", MessageBoxButton.OK, MessageBoxImage.Warning);
+                ShowError("Подтвердите новый пароль!");
                 PbConfirmPassword.Focus();
                 return;
             }
@@ -80,8 +93,7 @@ namespace _322_Dorogan_Mihaela.Pages
             // Проверка нового пароля
             if (!ValidatePassword(PbNewPassword.Password))
             {
-                MessageBox.Show("Новый пароль должен содержать:\n• Минимум 6 символов\n• Только латинские буквы и цифры\n• Хотя бы одну цифру и одну букву",
-                    "Ошибка", MessageBoxButton.OK, MessageBoxImage.Warning);
+                ShowError("Новый пароль не соответствует требованиям!\n\nТребования к паролю:\n• Минимум 6 символов\n• Только латинские буквы и цифры\n• Хотя бы одна цифра и одна буква");
                 PbNewPassword.Clear();
                 PbConfirmPassword.Clear();
                 PbNewPassword.Focus();
@@ -91,7 +103,7 @@ namespace _322_Dorogan_Mihaela.Pages
             // Проверка совпадения паролей
             if (PbNewPassword.Password != PbConfirmPassword.Password)
             {
-                MessageBox.Show("Новые пароли не совпадают!", "Ошибка", MessageBoxButton.OK, MessageBoxImage.Warning);
+                ShowError("Новые пароли не совпадают!");
                 PbConfirmPassword.Clear();
                 PbConfirmPassword.Focus();
                 return;
@@ -100,8 +112,7 @@ namespace _322_Dorogan_Mihaela.Pages
             // Проверка что новый пароль отличается от старого
             if (PbCurrentPassword.Password == PbNewPassword.Password)
             {
-                MessageBox.Show("Новый пароль должен отличаться от текущего!", "Ошибка",
-                    MessageBoxButton.OK, MessageBoxImage.Warning);
+                ShowError("Новый пароль должен отличаться от текущего!");
                 PbNewPassword.Clear();
                 PbConfirmPassword.Clear();
                 PbNewPassword.Focus();
@@ -114,12 +125,13 @@ namespace _322_Dorogan_Mihaela.Pages
                 {
                     string hashedCurrentPassword = GetHash(PbCurrentPassword.Password);
 
-                    var user = db.Users.FirstOrDefault(u => u.Login == TbLogin.Text && u.Password == hashedCurrentPassword);
+                    var user = db.Users.FirstOrDefault(u =>
+                        u.Login == TbLogin.Text.Trim() &&
+                        u.Password == hashedCurrentPassword);
 
                     if (user == null)
                     {
-                        MessageBox.Show("Неверный логин или текущий пароль!", "Ошибка",
-                            MessageBoxButton.OK, MessageBoxImage.Error);
+                        ShowError("Неверный логин или текущий пароль!");
                         PbCurrentPassword.Clear();
                         PbCurrentPassword.Focus();
                         return;
@@ -132,13 +144,19 @@ namespace _322_Dorogan_Mihaela.Pages
                     MessageBox.Show("Пароль успешно изменен!", "Успех",
                         MessageBoxButton.OK, MessageBoxImage.Information);
 
+                    // Очистка полей
+                    TbLogin.Clear();
+                    PbCurrentPassword.Clear();
+                    PbNewPassword.Clear();
+                    PbConfirmPassword.Clear();
+                    ClearError();
+
                     NavigationService.GoBack();
                 }
             }
             catch (Exception ex)
             {
-                MessageBox.Show($"Ошибка при смене пароля: {ex.Message}", "Ошибка",
-                    MessageBoxButton.OK, MessageBoxImage.Error);
+                ShowError($"Ошибка при смене пароля: {ex.Message}");
             }
         }
 

@@ -1,0 +1,108 @@
+﻿<Page x:Class="_322_Dorogan_Mihaela.Pages.UsersManagementPage"
+      xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+      xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+      Title="Управление пользователями">
+
+    <Grid Background="{StaticResource PrimaryBrush1}">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="Auto"/>
+        </Grid.RowDefinitions>
+
+        <!-- Заголовок -->
+        <Border Grid.Row="0" Background="{StaticResource PrimaryBrush2}" 
+                BorderBrush="{StaticResource TextBrushBlack}" BorderThickness="0,0,0,1" Padding="10">
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="Auto"/>
+                </Grid.ColumnDefinitions>
+
+                <TextBlock Text="УПРАВЛЕНИЕ ПОЛЬЗОВАТЕЛЯМИ" FontSize="16" FontWeight="Bold" 
+                          VerticalAlignment="Center"/>
+
+                <StackPanel Grid.Column="1" Orientation="Horizontal">
+                    <Button x:Name="BtnBack" Content="Назад" Width="80" Height="30"
+                            Click="BtnBack_Click" Margin="0,0,10,0"/>
+                </StackPanel>
+            </Grid>
+        </Border>
+
+        <!-- Панель поиска и фильтров -->
+        <Border Grid.Row="1" Background="{StaticResource SecondaryBrush1}" 
+                BorderBrush="{StaticResource TextBrushBlack}" BorderThickness="0,0,0,1" 
+                Padding="10" Margin="0,0,0,5">
+            <StackPanel Orientation="Horizontal">
+                <!-- Поиск -->
+                <Label Content="Поиск:" FontWeight="Bold" VerticalAlignment="Center" Margin="0,0,5,0"/>
+                <TextBox x:Name="TbSearch" Width="200" Height="30" Margin="0,0,20,0"
+                         TextChanged="TbSearch_TextChanged" ToolTip="Поиск по ФИО или логину"/>
+
+                <!-- Фильтр по роли -->
+                <Label Content="Роль:" FontWeight="Bold" VerticalAlignment="Center" Margin="0,0,5,0"/>
+                <ComboBox x:Name="CbRoleFilter" Width="120" Height="30" Margin="0,0,20,0"
+                          SelectionChanged="CbRoleFilter_SelectionChanged">
+                    <ComboBoxItem Content="Все" IsSelected="True"/>
+                    <ComboBoxItem Content="Admin"/>
+                    <ComboBoxItem Content="User"/>
+                </ComboBox>
+
+                <!-- Сортировка -->
+                <Label Content="Сортировка:" FontWeight="Bold" VerticalAlignment="Center" Margin="0,0,5,0"/>
+                <ComboBox x:Name="CbSort" Width="150" Height="30" Margin="0,0,20,0"
+                          SelectionChanged="CbSort_SelectionChanged">
+                    <ComboBoxItem Content="По ФИО (А-Я)" IsSelected="True"/>
+                    <ComboBoxItem Content="По ФИО (Я-А)"/>
+                    <ComboBoxItem Content="По дате регистрации"/>
+                </ComboBox>
+
+                <Button x:Name="BtnClearFilters" Content="Сбросить фильтры" Width="120" Height="30"
+                        Click="BtnClearFilters_Click"/>
+            </StackPanel>
+        </Border>
+
+        <!-- Таблица пользователей -->
+        <DataGrid Grid.Row="2" x:Name="DgUsers" AutoGenerateColumns="False" 
+                  IsReadOnly="True" SelectionMode="Single" Margin="10">
+            <DataGrid.Columns>
+                <DataGridTextColumn Header="ID" Binding="{Binding ID}" Width="50"/>
+                <DataGridTextColumn Header="Логин" Binding="{Binding Login}" Width="120"/>
+                <DataGridTextColumn Header="ФИО" Binding="{Binding FIO}" Width="200"/>
+                <DataGridTextColumn Header="Роль" Binding="{Binding Role}" Width="80"/>
+                <DataGridTextColumn Header="Фото" Binding="{Binding Photo}" Width="80"/>
+                <DataGridTemplateColumn Header="Действия" Width="200">
+                    <DataGridTemplateColumn.CellTemplate>
+                        <DataTemplate>
+                            <StackPanel Orientation="Horizontal">
+                                <Button Content="✏️" ToolTip="Редактировать" 
+                                        Click="BtnEditUser_Click" Margin="2" Padding="5"
+                                        Background="Transparent" BorderThickness="0"/>
+                                <Button Content="🗑️" ToolTip="Удалить" 
+                                        Click="BtnDeleteUser_Click" Margin="2" Padding="5"
+                                        Background="Transparent" BorderThickness="0"/>
+                                <Button Content="🔑" ToolTip="Сбросить пароль" 
+                                        Click="BtnResetPassword_Click" Margin="2" Padding="5"
+                                        Background="Transparent" BorderThickness="0"/>
+                            </StackPanel>
+                        </DataTemplate>
+                    </DataGridTemplateColumn.CellTemplate>
+                </DataGridTemplateColumn>
+            </DataGrid.Columns>
+        </DataGrid>
+
+        <!-- Панель управления -->
+        <Border Grid.Row="3" Background="{StaticResource SecondaryBrush2}" 
+                BorderBrush="{StaticResource TextBrushBlack}" BorderThickness="0,1,0,0" 
+                Padding="10">
+            <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
+                <Button x:Name="BtnAddUser" Content="➕ Добавить пользователя" Width="180" Height="35"
+                        Click="BtnAddUser_Click" FontWeight="Bold" Margin="0,0,10,0"/>
+                <Button x:Name="BtnExportUsers" Content="📊 Экспорт в Excel" Width="140" Height="35"
+                        Click="BtnExportUsers_Click" Margin="0,0,10,0"/>
+                <Button x:Name="BtnRefresh" Content="🔄 Обновить" Width="100" Height="35"
+                        Click="BtnRefresh_Click"/>
+            </StackPanel>
+        </Border>
+    </Grid>
+</Page>

@@ -1,0 +1,125 @@
+﻿<Page x:Class="_322_Dorogan_Mihaela.Pages.PaymentsManagementPage"
+      xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+      xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+      Title="Управление платежами">
+
+    <Grid Background="{StaticResource PrimaryBrush1}">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="Auto"/>
+        </Grid.RowDefinitions>
+
+        <!-- Заголовок -->
+        <Border Grid.Row="0" Background="{StaticResource PrimaryBrush2}" 
+                BorderBrush="{StaticResource TextBrushBlack}" BorderThickness="0,0,0,1" Padding="10">
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="Auto"/>
+                </Grid.ColumnDefinitions>
+
+                <TextBlock Text="УПРАВЛЕНИЕ ПЛАТЕЖАМИ" FontSize="16" FontWeight="Bold" 
+                          VerticalAlignment="Center"/>
+
+                <StackPanel Grid.Column="1" Orientation="Horizontal">
+                    <Button x:Name="BtnBack" Content="Назад" Width="80" Height="30"
+                            Click="BtnBack_Click" Margin="0,0,10,0"/>
+                </StackPanel>
+            </Grid>
+        </Border>
+
+        <!-- Панель фильтров -->
+        <Border Grid.Row="1" Background="{StaticResource SecondaryBrush1}" 
+                BorderBrush="{StaticResource TextBrushBlack}" BorderThickness="0,0,0,1" 
+                Padding="10" Margin="0,0,0,5">
+            <Grid>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="Auto"/>
+                </Grid.RowDefinitions>
+
+                <!-- Первая строка фильтров -->
+                <StackPanel Grid.Row="0" Orientation="Horizontal" Margin="0,0,0,10">
+                    <!-- Период -->
+                    <Label Content="Период:" FontWeight="Bold" VerticalAlignment="Center" Margin="0,0,5,0"/>
+                    <DatePicker x:Name="DpStartDate" Width="120" Margin="5,0"/>
+                    <Label Content="-" VerticalAlignment="Center"/>
+                    <DatePicker x:Name="DpEndDate" Width="120" Margin="5,0"/>
+
+                    <!-- Пользователь -->
+                    <Label Content="Пользователь:" FontWeight="Bold" VerticalAlignment="Center" Margin="20,0,5,0"/>
+                    <ComboBox x:Name="CbUser" Width="200" DisplayMemberPath="FIO"
+                              SelectionChanged="Filters_SelectionChanged"/>
+
+                    <!-- Категория -->
+                    <Label Content="Категория:" FontWeight="Bold" VerticalAlignment="Center" Margin="20,0,5,0"/>
+                    <ComboBox x:Name="CbCategory" Width="150" DisplayMemberPath="Name"
+                              SelectionChanged="Filters_SelectionChanged"/>
+                </StackPanel>
+
+                <!-- Вторая строка фильтров -->
+                <StackPanel Grid.Row="1" Orientation="Horizontal">
+                    <!-- Поиск -->
+                    <Label Content="Поиск:" FontWeight="Bold" VerticalAlignment="Center" Margin="0,0,5,0"/>
+                    <TextBox x:Name="TbSearch" Width="200" Height="30" 
+                             TextChanged="TbSearch_TextChanged" ToolTip="Поиск по названию платежа"/>
+
+                    <!-- Кнопки управления фильтрами -->
+                    <Button x:Name="BtnApplyFilters" Content="Применить" Width="100" Height="30"
+                            Click="BtnApplyFilters_Click" Margin="20,0,5,0"/>
+                    <Button x:Name="BtnClearFilters" Content="Сбросить" Width="80" Height="30"
+                            Click="BtnClearFilters_Click" Margin="5,0,0,0"/>
+
+                    <!-- Статистика -->
+                    <TextBlock x:Name="TbStats" VerticalAlignment="Center" Margin="20,0,0,0"
+                              FontWeight="Bold" Foreground="DarkBlue"/>
+                </StackPanel>
+            </Grid>
+        </Border>
+
+        <!-- Таблица платежей -->
+        <DataGrid Grid.Row="2" x:Name="DgPayments" AutoGenerateColumns="False" 
+                  IsReadOnly="True" SelectionMode="Single" Margin="10">
+            <DataGrid.Columns>
+                <DataGridTextColumn Header="ID" Binding="{Binding ID}" Width="40"/>
+                <DataGridTextColumn Header="Дата" Binding="{Binding Date, StringFormat=dd.MM.yyyy}" Width="80"/>
+                <DataGridTextColumn Header="Пользователь" Binding="{Binding User.FIO}" Width="150"/>
+                <DataGridTextColumn Header="Категория" Binding="{Binding Category.Name}" Width="120"/>
+                <DataGridTextColumn Header="Название" Binding="{Binding Name}" Width="150"/>
+                <DataGridTextColumn Header="Кол-во" Binding="{Binding Num}" Width="60"/>
+                <DataGridTextColumn Header="Цена" Binding="{Binding Price, StringFormat={}{0:N2} руб.}" Width="90"/>
+                <DataGridTextColumn Header="Сумма" Binding="{Binding TotalAmount, StringFormat={}{0:N2} руб.}" Width="100"/>
+                <DataGridTemplateColumn Header="Действия" Width="120">
+                    <DataGridTemplateColumn.CellTemplate>
+                        <DataTemplate>
+                            <StackPanel Orientation="Horizontal">
+                                <Button Content="✏️" ToolTip="Редактировать" 
+                                        Click="BtnEditPayment_Click" Margin="2" Padding="5"
+                                        Background="Transparent" BorderThickness="0"/>
+                                <Button Content="🗑️" ToolTip="Удалить" 
+                                        Click="BtnDeletePayment_Click" Margin="2" Padding="5"
+                                        Background="Transparent" BorderThickness="0"/>
+                            </StackPanel>
+                        </DataTemplate>
+                    </DataGridTemplateColumn.CellTemplate>
+                </DataGridTemplateColumn>
+            </DataGrid.Columns>
+        </DataGrid>
+
+        <!-- Панель управления -->
+        <Border Grid.Row="3" Background="{StaticResource SecondaryBrush2}" 
+                BorderBrush="{StaticResource TextBrushBlack}" BorderThickness="0,1,0,0" 
+                Padding="10">
+            <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
+                <Button x:Name="BtnAddPayment" Content="➕ Добавить платеж" Width="150" Height="35"
+                        Click="BtnAddPayment_Click" FontWeight="Bold" Margin="0,0,10,0"/>
+                <Button x:Name="BtnExportPayments" Content="📊 Экспорт в Excel" Width="140" Height="35"
+                        Click="BtnExportPayments_Click" Margin="0,0,10,0"/>
+                <Button x:Name="BtnRefresh" Content="🔄 Обновить" Width="100" Height="35"
+                        Click="BtnRefresh_Click"/>
+            </StackPanel>
+        </Border>
+    </Grid>
+</Page>

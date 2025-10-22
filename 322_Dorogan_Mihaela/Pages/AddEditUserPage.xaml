@@ -1,0 +1,121 @@
+﻿<Page x:Class="_322_Dorogan_Mihaela.Pages.AddEditUserPage"
+      xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+      xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+      Title="Редактирование пользователя">
+
+    <Grid Background="{StaticResource PrimaryBrush1}">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="Auto"/>
+        </Grid.RowDefinitions>
+
+        <!-- Заголовок -->
+        <Border Grid.Row="0" Background="{StaticResource PrimaryBrush2}" 
+                BorderBrush="{StaticResource TextBrushBlack}" BorderThickness="0,0,0,1" Padding="10">
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="Auto"/>
+                </Grid.ColumnDefinitions>
+
+                <TextBlock x:Name="TbTitle" FontSize="16" FontWeight="Bold" VerticalAlignment="Center"/>
+
+                <StackPanel Grid.Column="1" Orientation="Horizontal">
+                    <Button x:Name="BtnBack" Content="Назад" Width="80" Height="30"
+                            Click="BtnBack_Click" Margin="0,0,10,0"/>
+                </StackPanel>
+            </Grid>
+        </Border>
+
+        <!-- Форма редактирования -->
+        <Border Grid.Row="1" Background="{StaticResource SecondaryBrush2}" 
+                BorderBrush="{StaticResource TextBrushBlack}" BorderThickness="1" 
+                CornerRadius="5" Margin="20" Padding="20">
+            <Grid>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="*"/>
+                </Grid.RowDefinitions>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="150"/>
+                    <ColumnDefinition Width="*"/>
+                </Grid.ColumnDefinitions>
+
+                <!-- Логин -->
+                <Label Grid.Row="0" Grid.Column="0" Content="Логин:*" FontWeight="Bold" 
+                       VerticalAlignment="Center" Margin="0,5"/>
+                <TextBox Grid.Row="0" Grid.Column="1" x:Name="TbLogin" Height="35" 
+                         Text="{Binding Login, UpdateSourceTrigger=PropertyChanged}"
+                         ToolTip="Уникальный логин пользователя" Margin="0,5"/>
+
+                <!-- Пароль (только для нового пользователя) -->
+                <Label Grid.Row="1" Grid.Column="0" x:Name="LblPassword" Content="Пароль:*" 
+                       FontWeight="Bold" VerticalAlignment="Center" Margin="0,5"/>
+                <PasswordBox Grid.Row="1" Grid.Column="1" x:Name="PbPassword" Height="35" 
+                             ToolTip="Пароль должен содержать минимум 6 символов, только латинские буквы и цифры"
+                             Margin="0,5"/>
+
+                <!-- ФИО -->
+                <Label Grid.Row="2" Grid.Column="0" Content="ФИО:*" FontWeight="Bold" 
+                       VerticalAlignment="Center" Margin="0,5"/>
+                <TextBox Grid.Row="2" Grid.Column="1" x:Name="TbFIO" Height="35" 
+                         Text="{Binding FIO, UpdateSourceTrigger=PropertyChanged}"
+                         ToolTip="Полное имя пользователя" Margin="0,5"/>
+
+                <!-- Роль -->
+                <Label Grid.Row="3" Grid.Column="0" Content="Роль:*" FontWeight="Bold" 
+                       VerticalAlignment="Center" Margin="0,5"/>
+                <ComboBox Grid.Row="3" Grid.Column="1" x:Name="CbRole" Height="35" 
+                          SelectedValue="{Binding Role}"
+                          ToolTip="Выберите роль пользователя" Margin="0,5">
+                    <ComboBoxItem Content="User"/>
+                    <ComboBoxItem Content="Admin"/>
+                </ComboBox>
+
+                <!-- Фото -->
+                <Label Grid.Row="4" Grid.Column="0" Content="Фото:" FontWeight="Bold" 
+                       VerticalAlignment="Center" Margin="0,5"/>
+                <StackPanel Grid.Row="4" Grid.Column="1" Orientation="Horizontal" Margin="0,5">
+                    <TextBox x:Name="TbPhoto" Height="35" Width="200" 
+                             Text="{Binding Photo, UpdateSourceTrigger=PropertyChanged}"
+                             ToolTip="Путь к файлу фото" Margin="0,0,10,0"/>
+                    <Button x:Name="BtnBrowsePhoto" Content="Обзор..." Width="80" Height="35"
+                            Click="BtnBrowsePhoto_Click"/>
+                </StackPanel>
+
+                <!-- Сообщение об ошибках -->
+                <TextBlock Grid.Row="5" Grid.Column="0" Grid.ColumnSpan="2" x:Name="TbError" 
+                          Foreground="Red" FontSize="11" TextWrapping="Wrap" 
+                          Margin="0,10,0,0" Visibility="Collapsed"/>
+
+                <!-- Требования к паролю -->
+                <Border Grid.Row="6" Grid.Column="0" Grid.ColumnSpan="2" 
+                        Background="{StaticResource SecondaryBrush1}" 
+                        BorderBrush="LightGray" BorderThickness="1" CornerRadius="3" 
+                        Margin="0,10,0,0" Padding="10" Visibility="Collapsed">
+                    <TextBlock x:Name="TbPasswordRequirements" 
+                              Text="Требования к паролю:&#10;• Минимум 6 символов&#10;• Только латинские буквы и цифры&#10;• Хотя бы одна цифра и одна буква" 
+                              FontSize="10" TextWrapping="Wrap"/>
+                </Border>
+            </Grid>
+        </Border>
+
+        <!-- Панель управления -->
+        <Border Grid.Row="2" Background="{StaticResource SecondaryBrush2}" 
+                BorderBrush="{StaticResource TextBrushBlack}" BorderThickness="0,1,0,0" 
+                Padding="10">
+            <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
+                <Button x:Name="BtnSave" Content="💾 Сохранить" Width="120" Height="35"
+                        Click="BtnSave_Click" FontWeight="Bold" Margin="0,0,10,0"/>
+                <Button x:Name="BtnCancel" Content="❌ Отмена" Width="100" Height="35"
+                        Click="BtnCancel_Click"/>
+            </StackPanel>
+        </Border>
+    </Grid>
+</Page>

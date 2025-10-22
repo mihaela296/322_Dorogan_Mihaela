@@ -3,15 +3,15 @@
       xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
       Title="Личный кабинет">
 
-    <Grid>
+    <Grid Background="{StaticResource PrimaryBrush1}">
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto"/>
             <RowDefinition Height="*"/>
         </Grid.RowDefinitions>
 
         <!-- Шапка -->
-        <Border Grid.Row="0" Background="{StaticResource PrimaryBrush2}" BorderBrush="{StaticResource TextBrushBlack}" 
-                BorderThickness="0,0,0,1" Padding="10">
+        <Border Grid.Row="0" Background="{StaticResource PrimaryBrush2}" 
+                BorderBrush="{StaticResource TextBrushBlack}" BorderThickness="0,0,0,1" Padding="10">
             <Grid>
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="*"/>
@@ -21,7 +21,9 @@
                 <TextBlock x:Name="TbWelcome" FontSize="14" FontWeight="Bold" VerticalAlignment="Center"/>
 
                 <StackPanel Grid.Column="1" Orientation="Horizontal">
-                    <Button x:Name="BtnChangePass" Content="Смена пароля" Width="120" Height="30"
+                    <Button x:Name="BtnAddPayment" Content="Добавить платеж" Width="120" Height="30"
+                            Click="BtnAddPayment_Click" Margin="0,0,10,0"/>
+                    <Button x:Name="BtnChangePass" Content="Смена пароля" Width="100" Height="30"
                             Click="BtnChangePass_Click" Margin="0,0,10,0"/>
                     <Button x:Name="BtnLogout" Content="Выйти" Width="80" Height="30"
                             Click="BtnLogout_Click"/>
@@ -39,14 +41,23 @@
                     </Grid.RowDefinitions>
 
                     <!-- Панель фильтров -->
-                    <Border Grid.Row="0" Background="{StaticResource SecondaryBrush1}" BorderBrush="{StaticResource TextBrushBlack}" 
-                            BorderThickness="1" CornerRadius="3" Margin="0,0,0,10" Padding="10">
+                    <Border Grid.Row="0" Background="{StaticResource SecondaryBrush1}" 
+                            BorderBrush="{StaticResource TextBrushBlack}" BorderThickness="1" 
+                            CornerRadius="3" Margin="0,0,0,10" Padding="10">
                         <StackPanel Orientation="Horizontal">
                             <Label Content="Период:" FontWeight="Bold" VerticalAlignment="Center"/>
-                            <DatePicker x:Name="DpStartDate" Width="120" Margin="5,0"/>
+                            <DatePicker x:Name="DpStartDate" Width="120" Margin="5,0"
+                                        SelectedDateChanged="DatePicker_SelectedDateChanged"/>
                             <Label Content="-" VerticalAlignment="Center"/>
-                            <DatePicker x:Name="DpEndDate" Width="120" Margin="5,0"/>
-                            <Button x:Name="BtnApplyFilter" Content="Применить" Width="100" Margin="10,0,5,0"
+                            <DatePicker x:Name="DpEndDate" Width="120" Margin="5,0"
+                                        SelectedDateChanged="DatePicker_SelectedDateChanged"/>
+
+                            <Label Content="Категория:" FontWeight="Bold" VerticalAlignment="Center" Margin="20,0,5,0"/>
+                            <ComboBox x:Name="CbCategory" Width="150" Margin="5,0"
+                                      SelectionChanged="CbCategory_SelectionChanged"
+                                      DisplayMemberPath="Name"/>
+
+                            <Button x:Name="BtnApplyFilter" Content="Применить" Width="100" Margin="20,0,5,0"
                                     Click="BtnApplyFilter_Click"/>
                             <Button x:Name="BtnClearFilter" Content="Сбросить" Width="80" Margin="5,0"
                                     Click="BtnClearFilter_Click"/>
@@ -54,7 +65,8 @@
                     </Border>
 
                     <!-- Таблица платежей -->
-                    <DataGrid Grid.Row="1" x:Name="DgPayments" AutoGenerateColumns="False" IsReadOnly="True">
+                    <DataGrid Grid.Row="1" x:Name="DgPayments" AutoGenerateColumns="False" 
+                              IsReadOnly="True" SelectionMode="Single">
                         <DataGrid.Columns>
                             <DataGridTextColumn Header="Дата" Binding="{Binding Date, StringFormat=dd.MM.yyyy}" Width="100"/>
                             <DataGridTextColumn Header="Название" Binding="{Binding Name}" Width="200"/>
@@ -62,6 +74,14 @@
                             <DataGridTextColumn Header="Кол-во" Binding="{Binding Num}" Width="70"/>
                             <DataGridTextColumn Header="Цена" Binding="{Binding Price, StringFormat={}{0:N2} руб.}" Width="90"/>
                             <DataGridTextColumn Header="Сумма" Binding="{Binding TotalAmount, StringFormat={}{0:N2} руб.}" Width="100"/>
+                            <DataGridTemplateColumn Width="100">
+                                <DataGridTemplateColumn.CellTemplate>
+                                    <DataTemplate>
+                                        <Button Content="Удалить" Click="BtnDeletePayment_Click" 
+                                                Margin="2" Padding="5,2" FontSize="10"/>
+                                    </DataTemplate>
+                                </DataGridTemplateColumn.CellTemplate>
+                            </DataGridTemplateColumn>
                         </DataGrid.Columns>
                     </DataGrid>
                 </Grid>
@@ -75,18 +95,43 @@
                     </Grid.RowDefinitions>
 
                     <!-- Заголовок статистики -->
-                    <TextBlock Grid.Row="0" Text="Статистика расходов по категориям" FontSize="14" FontWeight="Bold" 
-                              Margin="0,0,0,10" HorizontalAlignment="Center"/>
+                    <TextBlock Grid.Row="0" Text="Статистика расходов по категориям" 
+                              FontSize="14" FontWeight="Bold" Margin="10" HorizontalAlignment="Center"/>
 
                     <!-- Таблица статистики -->
-                    <DataGrid Grid.Row="1" x:Name="DgStatistics" AutoGenerateColumns="False" IsReadOnly="True">
+                    <DataGrid Grid.Row="1" x:Name="DgStatistics" AutoGenerateColumns="False" 
+                              IsReadOnly="True" Margin="10">
                         <DataGrid.Columns>
                             <DataGridTextColumn Header="Категория" Binding="{Binding CategoryName}" Width="200"/>
                             <DataGridTextColumn Header="Кол-во платежей" Binding="{Binding PaymentCount}" Width="120"/>
                             <DataGridTextColumn Header="Общая сумма" Binding="{Binding TotalAmount, StringFormat={}{0:N2} руб.}" Width="120"/>
                             <DataGridTextColumn Header="Средний чек" Binding="{Binding AverageAmount, StringFormat={}{0:N2} руб.}" Width="120"/>
+                            <DataGridTextColumn Header="Доля" Binding="{Binding Percentage, StringFormat={}{0:P1}}" Width="80"/>
                         </DataGrid.Columns>
                     </DataGrid>
+                </Grid>
+            </TabItem>
+
+            <TabItem Header="Диаграммы">
+                <Grid>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="*"/>
+                    </Grid.RowDefinitions>
+
+                    <!-- Управление диаграммой -->
+                    <StackPanel Grid.Row="0" Orientation="Horizontal" Margin="10">
+                        <Label Content="Тип диаграммы:" VerticalAlignment="Center" Margin="0,0,5,0"/>
+                        <ComboBox x:Name="CbChartType" Width="150" Margin="0,0,20,0"
+                                  SelectionChanged="CbChartType_SelectionChanged">
+                            <ComboBoxItem Content="Столбчатая" IsSelected="True"/>
+                            <ComboBoxItem Content="Круговая"/>
+                            <ComboBoxItem Content="Линейная"/>
+                        </ComboBox>
+
+                        <Button x:Name="BtnExport" Content="Экспорт в Excel" Width="120" Height="30"
+                                Click="BtnExport_Click"/>
+                    </StackPanel>
                 </Grid>
             </TabItem>
         </TabControl>
