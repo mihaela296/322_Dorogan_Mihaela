@@ -21,7 +21,7 @@
                 <TextBlock Text="АНАЛИТИКА ПЛАТЕЖЕЙ" FontSize="16" FontWeight="Bold" 
                           VerticalAlignment="Center"/>
 
-                <StackPanel Grid.Column="1" Orientation="Horizontal">
+                <StackPanel Grid.Column="1" Orientation="Horizontal" Margin="0">
                     <Button x:Name="BtnBack" Content="Назад" Width="80" Height="30"
                             Click="BtnBack_Click" Margin="0,0,10,0"/>
                 </StackPanel>
@@ -40,15 +40,16 @@
                     </Grid.RowDefinitions>
 
                     <!-- Управление -->
-                    <StackPanel Grid.Row="0" Orientation="Horizontal" Margin="10" Background="{StaticResource SecondaryBrush1}" Padding="10">
-                        <Label Content="Период:" FontWeight="Bold" VerticalAlignment="Center" Margin="0,0,5,0"/>
-                        <DatePicker x:Name="DpCatStartDate" Width="120" SelectedDateChanged="DateRange_Changed"/>
-                        <Label Content="-" VerticalAlignment="Center" Margin="5,0"/>
-                        <DatePicker x:Name="DpCatEndDate" Width="120" SelectedDateChanged="DateRange_Changed"/>
-
-                        <Button x:Name="BtnExportCatChart" Content="📈 Экспорт" Width="120" Height="30"
-                                Click="BtnExportCatChart_Click" Margin="20,0,0,0"/>
-                    </StackPanel>
+                    <Border Grid.Row="0" Background="{StaticResource SecondaryBrush1}" Margin="10" Padding="10">
+                        <StackPanel Orientation="Horizontal" Margin="0">
+                            <Label Content="Период:" FontWeight="Bold" VerticalAlignment="Center" Margin="0,0,5,0"/>
+                            <DatePicker x:Name="DpCatStartDate" Width="120" SelectedDateChanged="DateRange_Changed"/>
+                            <Label Content="-" VerticalAlignment="Center" Margin="5,0"/>
+                            <DatePicker x:Name="DpCatEndDate" Width="120" SelectedDateChanged="DateRange_Changed"/>
+                            <Button x:Name="BtnExportCatChart" Content="📈 Экспорт" Width="120" Height="30"
+                                    Click="BtnExportCatChart_Click" Margin="20,0,0,0"/>
+                        </StackPanel>
+                    </Border>
 
                     <!-- Заглушка для диаграммы -->
                     <Border Grid.Row="1" Background="White" Margin="10" BorderBrush="Gray" BorderThickness="1">
@@ -69,15 +70,16 @@
                     </Grid.RowDefinitions>
 
                     <!-- Управление -->
-                    <StackPanel Grid.Row="0" Orientation="Horizontal" Margin="10" Background="{StaticResource SecondaryBrush1}" Padding="10">
-                        <Label Content="Период:" FontWeight="Bold" VerticalAlignment="Center" Margin="0,0,5,0"/>
-                        <DatePicker x:Name="DpUserStartDate" Width="120" SelectedDateChanged="DateRange_Changed"/>
-                        <Label Content="-" VerticalAlignment="Center" Margin="5,0"/>
-                        <DatePicker x:Name="DpUserEndDate" Width="120" SelectedDateChanged="DateRange_Changed"/>
-
-                        <Button x:Name="BtnExportUserChart" Content="📈 Экспорт" Width="120" Height="30"
-                                Click="BtnExportUserChart_Click" Margin="20,0,0,0"/>
-                    </StackPanel>
+                    <Border Grid.Row="0" Background="{StaticResource SecondaryBrush1}" Margin="10" Padding="10">
+                        <StackPanel Orientation="Horizontal" Margin="0">
+                            <Label Content="Период:" FontWeight="Bold" VerticalAlignment="Center" Margin="0,0,5,0"/>
+                            <DatePicker x:Name="DpUserStartDate" Width="120" SelectedDateChanged="DateRange_Changed"/>
+                            <Label Content="-" VerticalAlignment="Center" Margin="5,0"/>
+                            <DatePicker x:Name="DpUserEndDate" Width="120" SelectedDateChanged="DateRange_Changed"/>
+                            <Button x:Name="BtnExportUserChart" Content="📈 Экспорт" Width="120" Height="30"
+                                    Click="BtnExportUserChart_Click" Margin="20,0,0,0"/>
+                        </StackPanel>
+                    </Border>
 
                     <!-- Заглушка для диаграммы -->
                     <Border Grid.Row="1" Background="White" Margin="10" BorderBrush="Gray" BorderThickness="1">
@@ -98,15 +100,16 @@
                     </Grid.RowDefinitions>
 
                     <!-- Управление -->
-                    <StackPanel Grid.Row="0" Orientation="Horizontal" Margin="10" Background="{StaticResource SecondaryBrush1}" Padding="10">
-                        <Label Content="Период:" FontWeight="Bold" VerticalAlignment="Center" Margin="0,0,5,0"/>
-                        <DatePicker x:Name="DpTrendStartDate" Width="120" SelectedDateChanged="DateRange_Changed"/>
-                        <Label Content="-" VerticalAlignment="Center" Margin="5,0"/>
-                        <DatePicker x:Name="DpTrendEndDate" Width="120" SelectedDateChanged="DateRange_Changed"/>
-
-                        <Button x:Name="BtnExportTrend" Content="📈 Экспорт" Width="120" Height="30"
-                                Click="BtnExportTrend_Click" Margin="20,0,0,0"/>
-                    </StackPanel>
+                    <Border Grid.Row="0" Background="{StaticResource SecondaryBrush1}" Margin="10" Padding="10">
+                        <StackPanel Orientation="Horizontal" Margin="0">
+                            <Label Content="Период:" FontWeight="Bold" VerticalAlignment="Center" Margin="0,0,5,0"/>
+                            <DatePicker x:Name="DpTrendStartDate" Width="120" SelectedDateChanged="DateRange_Changed"/>
+                            <Label Content="-" VerticalAlignment="Center" Margin="5,0"/>
+                            <DatePicker x:Name="DpTrendEndDate" Width="120" SelectedDateChanged="DateRange_Changed"/>
+                            <Button x:Name="BtnExportTrend" Content="📈 Экспорт" Width="120" Height="30"
+                                    Click="BtnExportTrend_Click" Margin="20,0,0,0"/>
+                        </StackPanel>
+                    </Border>
 
                     <!-- Заглушка для диаграммы -->
                     <Border Grid.Row="1" Background="White" Margin="10" BorderBrush="Gray" BorderThickness="1">
