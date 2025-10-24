@@ -9,14 +9,26 @@
 
 namespace _322_Dorogan_Mihaela
 {
-    using System;
     using System.Collections.Generic;
-    
+    using System.ComponentModel.DataAnnotations;
+    using System.ComponentModel.DataAnnotations.Schema;
+
+    [Table("Category")]
     public partial class Category
     {
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2214:DoNotCallOverridableMethodsInConstructors")]
+        public Category()
+        {
+            Payments = new HashSet<Payment>();
+        }
+
         public int ID { get; set; }
+
+        [Required]
+        [StringLength(255)]
         public string Name { get; set; }
-    
-        public virtual Payment Payment { get; set; }
+
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
+        public virtual ICollection<Payment> Payments { get; set; }
     }
 }

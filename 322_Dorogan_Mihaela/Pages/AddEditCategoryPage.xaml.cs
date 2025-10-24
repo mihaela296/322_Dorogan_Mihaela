@@ -44,14 +44,14 @@ namespace _322_Dorogan_Mihaela.Pages
                 using (var db = new Entities())
                 {
                     var category = db.Categories
-                        .Include(c => c.Payment) // Исправлено с Payment на Payments
+                        .Include(c => c.Payments) // Исправлено на Payments
                         .FirstOrDefault(c => c.ID == _editingCategory.ID);
 
                     if (category != null)
                     {
-                        var paymentCount = category.Payment.Count; // Исправлено
-                        var totalAmount = category.Payment.Sum(p => p.Num * p.Price); // Исправлено
-                        var lastPayment = category.Payment.OrderByDescending(p => p.Date).FirstOrDefault(); // Исправлено
+                        var paymentCount = category.Payments.Count();
+                        var totalAmount = category.Payments.Sum(p => p.Num * p.Price);
+                        var lastPayment = category.Payments.OrderByDescending(p => p.Date).FirstOrDefault();
 
                         var info = new System.Text.StringBuilder();
                         info.AppendLine($"Количество платежей: {paymentCount}");

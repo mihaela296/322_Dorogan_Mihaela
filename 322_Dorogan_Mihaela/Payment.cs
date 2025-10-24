@@ -10,19 +10,30 @@
 namespace _322_Dorogan_Mihaela
 {
     using System;
-    using System.Collections.Generic;
-    
+    using System.ComponentModel.DataAnnotations;
+    using System.ComponentModel.DataAnnotations.Schema;
+
+    [Table("Payment")]
     public partial class Payment
     {
         public int ID { get; set; }
+
         public int UserID { get; set; }
+
         public int CategoryID { get; set; }
-        public System.DateTime Date { get; set; }
+
+        public DateTime Date { get; set; }
+
+        [Required]
+        [StringLength(255)]
         public string Name { get; set; }
-        public decimal Num { get; set; }
+
+        public int Num { get; set; }
+
         public decimal Price { get; set; }
-    
+
         public virtual Category Category { get; set; }
+
         public virtual User User { get; set; }
     }
 }

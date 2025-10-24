@@ -42,7 +42,7 @@ namespace _322_Dorogan_Mihaela.Pages
                     CbUserReport.ItemsSource = users;
                     CbUserReport.SelectedIndex = -1;
 
-                    var categories = db.Category.OrderBy(c => c.Name).ToList();
+                    var categories = db.Categories.OrderBy(c => c.Name).ToList();
                     CbCategoryReport.ItemsSource = categories;
                     CbCategoryReport.SelectedIndex = -1;
                 }
@@ -91,7 +91,7 @@ namespace _322_Dorogan_Mihaela.Pages
 
             using (var db = new Entities())
             {
-                var paymentsQuery = db.Payment
+                var paymentsQuery = db.Payments
                     .Include(p => p.User)
                     .Include(p => p.Category)
                     .Where(p => p.Date >= startDate && p.Date <= endDate);
@@ -184,7 +184,7 @@ namespace _322_Dorogan_Mihaela.Pages
 
             using (var db = new Entities())
             {
-                var paymentsQuery = db.Payment
+                var paymentsQuery = db.Payments
                     .Include(p => p.Category)
                     .Include(p => p.User)
                     .Where(p => p.Date >= startDate && p.Date <= endDate);
@@ -295,7 +295,7 @@ namespace _322_Dorogan_Mihaela.Pages
                     .Count();
 
                 // Топ-5 пользователей
-                var topUsers = db.Payments   
+                var topUsers = db.Payments
                     .Include(p => p.User)
                     .Where(p => p.Date >= startDate && p.Date <= endDate)
                     .GroupBy(p => p.User.FIO)

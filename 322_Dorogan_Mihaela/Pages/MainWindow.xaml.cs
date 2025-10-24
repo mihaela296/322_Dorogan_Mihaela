@@ -53,5 +53,11 @@ namespace _322_Dorogan_Mihaela.Pages
             }
         }
 
+        // Добавляем недостающий метод
+        public void UpdateUserInfo(string userInfo, string status)
+        {
+            // Этот метод может обновлять информацию о пользователе в главном окне
+            // В текущей реализации эта функциональность может быть не нужна
+        }
     }
 }

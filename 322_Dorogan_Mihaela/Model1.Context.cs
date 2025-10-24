@@ -12,19 +12,20 @@ namespace _322_Dorogan_Mihaela
     using System;
     using System.Data.Entity;
     using System.Data.Entity.Infrastructure;
-    
+
     public partial class Entities : DbContext
     {
         public Entities()
             : base("name=Entities")
         {
         }
-    
+
         protected override void OnModelCreating(DbModelBuilder modelBuilder)
         {
-            throw new UnintentionalCodeFirstException();
+            // Отключаем соглашения о множественном числе
+            modelBuilder.Conventions.Remove<System.Data.Entity.ModelConfiguration.Conventions.PluralizingTableNameConvention>();
         }
-    
+
         public virtual DbSet<Category> Categories { get; set; }
         public virtual DbSet<Payment> Payments { get; set; }
         public virtual DbSet<sysdiagram> sysdiagrams { get; set; }

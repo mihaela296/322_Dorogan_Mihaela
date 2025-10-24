@@ -24,7 +24,7 @@ namespace _322_Dorogan_Mihaela.Pages
                 using (var db = new Entities())
                 {
                     var categories = db.Categories
-                        .Include(c => c.Payment)
+                        .Include(c => c.Payments)
                         .AsQueryable();
 
                     // Применение поиска
@@ -41,7 +41,7 @@ namespace _322_Dorogan_Mihaela.Pages
                         {
                             c.ID,
                             c.Name,
-                            PaymentCount = c.Payment.Count
+                            PaymentCount = c.Payments.Count
                         });
 
                     DgCategories.ItemsSource = categoryList;
