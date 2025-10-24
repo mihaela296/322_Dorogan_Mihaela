@@ -38,7 +38,8 @@
                         <RowDefinition Height="Auto"/>
                         <RowDefinition Height="Auto"/>
                         <RowDefinition Height="Auto"/>
-                        <RowDefinition Height="*"/>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
                         <RowDefinition Height="Auto"/>
                     </Grid.RowDefinitions>
 
@@ -62,21 +63,25 @@
 
                     <!-- ФИО -->
                     <Label Grid.Row="6" Content="ФИО:*" FontWeight="Bold" Margin="0,0,0,5"/>
-                    <TextBox Grid.Row="7" x:Name="TbFIO" Height="35" Margin="0,0,0,15"
+                    <TextBox Grid.Row="7" x:Name="TbFIO" Height="35" Margin="0,0,0,10"
                              ToolTip="Введите ваше полное имя (Фамилия Имя Отчество)"
                              TextChanged="TbFIO_TextChanged"/>
 
                     <!-- Требования к паролю -->
                     <Border Grid.Row="8" Background="{StaticResource SecondaryBrush1}" 
                             BorderBrush="LightGray" BorderThickness="1" CornerRadius="3" 
-                            Margin="0,0,0,15" Padding="10">
+                            Margin="0,0,0,10" Padding="10">
                         <TextBlock Text="Требования к паролю:&#10;• Минимум 6 символов&#10;• Только латинские буквы и цифры&#10;• Хотя бы одна цифра и одна буква" 
                                   FontSize="10" TextWrapping="Wrap"/>
                     </Border>
 
                     <!-- Сообщение об ошибках -->
-                    <TextBlock Grid.Row="9" x:Name="TbError" Foreground="Red" FontSize="11" 
-                              TextWrapping="Wrap" Margin="0,0,0,15" Visibility="Collapsed"/>
+                    <Border Grid.Row="9" Background="#FFFFE0E0" BorderBrush="Red" BorderThickness="1" 
+                            CornerRadius="3" Margin="0,0,0,10" Padding="8" x:Name="ErrorBorder" 
+                            Visibility="Collapsed">
+                        <TextBlock x:Name="TbError" Foreground="Red" FontSize="11" 
+                                  TextWrapping="Wrap" FontWeight="Bold"/>
+                    </Border>
 
                     <!-- Кнопки -->
                     <StackPanel Grid.Row="10" Orientation="Horizontal" 

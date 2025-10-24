@@ -50,13 +50,13 @@ namespace _322_Dorogan_Mihaela.Pages
         private void ShowError(string message)
         {
             TbError.Text = message;
-            TbError.Visibility = Visibility.Visible;
+            ErrorBorder.Visibility = Visibility.Visible;
         }
 
         private void ClearError()
         {
             TbError.Text = string.Empty;
-            TbError.Visibility = Visibility.Collapsed;
+            ErrorBorder.Visibility = Visibility.Collapsed;
         }
 
         private void TbLogin_TextChanged(object sender, TextChangedEventArgs e)
