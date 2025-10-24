@@ -67,6 +67,14 @@
                              ToolTip="Введите ваше полное имя (Фамилия Имя Отчество)"
                              TextChanged="TbFIO_TextChanged"/>
 
+                    <!-- Роль -->
+                    <Label Grid.Row="8" Content="Роль:*" FontWeight="Bold" Margin="0,0,0,5"/>
+                    <ComboBox Grid.Row="9" x:Name="CbRole" Height="35" Margin="0,0,0,10"
+          ToolTip="Выберите роль пользователя">
+                        <ComboBoxItem Content="User" IsSelected="True"/>
+                        <ComboBoxItem Content="Admin"/>
+                    </ComboBox>
+
                     <!-- Требования к паролю -->
                     <Border Grid.Row="8" Background="{StaticResource SecondaryBrush1}" 
                             BorderBrush="LightGray" BorderThickness="1" CornerRadius="3" 

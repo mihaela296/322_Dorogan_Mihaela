@@ -110,7 +110,19 @@ namespace _322_Dorogan_Mihaela.Pages
                 return;
             }
 
-            // Проверка логина (только латинские буквы и цифры)
+            // Проверка выбора роли
+            if (CbRole.SelectedItem == null)
+            {
+                ShowError("Выберите роль пользователя!");
+                CbRole.Focus();
+                return;
+            }
+
+            // Получаем выбранную роль
+            string selectedRole = ((ComboBoxItem)CbRole.SelectedItem).Content.ToString();
+
+            // Остальной код проверок остается без изменений...
+            // Проверка логина
             if (!Regex.IsMatch(TbLogin.Text, @"^[a-zA-Z0-9]+$"))
             {
                 ShowError("Логин должен содержать только латинские буквы и цифры!");
@@ -157,7 +169,7 @@ namespace _322_Dorogan_Mihaela.Pages
                         Login = TbLogin.Text.Trim(),
                         Password = GetHash(PbPassword.Password),
                         FIO = TbFIO.Text.Trim(),
-                        Role = "User" // По умолчанию обычный пользователь
+                        Role = selectedRole // Используем выбранную роль
                     };
 
                     db.Users.Add(newUser);

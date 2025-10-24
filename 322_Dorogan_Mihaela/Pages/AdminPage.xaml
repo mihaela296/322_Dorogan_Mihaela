@@ -51,8 +51,8 @@
                         <TextBlock Text="👥" FontSize="24" HorizontalAlignment="Center" Margin="0,0,0,10"/>
                         <TextBlock Text="Пользователи" FontSize="14" FontWeight="Bold" 
                                   HorizontalAlignment="Center" Margin="0,0,0,10"/>
-                        <Button x:Name="BtnManageUsers" Content="Управление" Width="140" Height="35" 
-                                Click="BtnManageUsers_Click" FontWeight="Bold" Margin="0,5,0,0"/>
+                        <Button x:Name="BtnManageUsers" Content="Управление" 
+        Click="BtnManageUsers_Click" Width="200" Height="40" />
                         <TextBlock Text="Добавление, редактирование, удаление пользователей" 
                                   FontSize="9" TextWrapping="Wrap" HorizontalAlignment="Center" 
                                   Margin="10,5,10,0" TextAlignment="Center"/>

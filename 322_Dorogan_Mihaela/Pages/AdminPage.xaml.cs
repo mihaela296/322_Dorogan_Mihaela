@@ -18,7 +18,7 @@ namespace _322_Dorogan_Mihaela.Pages
 
         private void BtnManageUsers_Click(object sender, RoutedEventArgs e)
         {
-            NavigationService.Navigate(new UsersManagementPage(_currentUser));
+            NavigationService?.Navigate(new UsersManagementPage(_currentUser));
         }
 
         private void BtnManageCategories_Click(object sender, RoutedEventArgs e)
