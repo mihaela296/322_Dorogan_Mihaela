@@ -70,7 +70,7 @@
                     <!-- Роль -->
                     <Label Grid.Row="8" Content="Роль:*" FontWeight="Bold" Margin="0,0,0,5"/>
                     <ComboBox Grid.Row="9" x:Name="CbRole" Height="35" Margin="0,0,0,10"
-          ToolTip="Выберите роль пользователя">
+                              ToolTip="Выберите роль пользователя">
                         <ComboBoxItem Content="User" IsSelected="True"/>
                         <ComboBoxItem Content="Admin"/>
                     </ComboBox>
@@ -99,6 +99,8 @@
                                 FontWeight="Bold" FontSize="12" Margin="0,0,10,0"/>
                         <Button x:Name="BtnCancel" Content="ОТМЕНА" Width="100" Height="40" 
                                 Click="BtnCancel_Click"/>
+                        <Button x:Name="BtnCheckDB" Content="Проверить БД" Width="100" Height="40" 
+                                Click="BtnCheckDB_Click" Margin="10,0,0,0"/>
                     </StackPanel>
                 </Grid>
             </Border>

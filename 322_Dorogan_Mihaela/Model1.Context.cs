@@ -18,6 +18,8 @@ namespace _322_Dorogan_Mihaela
         public Entities()
             : base("name=Entities")
         {
+            // Включаем инициализатор базы данных
+            Database.SetInitializer(new CreateDatabaseIfNotExists<Entities>());
         }
 
         protected override void OnModelCreating(DbModelBuilder modelBuilder)
@@ -28,7 +30,6 @@ namespace _322_Dorogan_Mihaela
 
         public virtual DbSet<Category> Categories { get; set; }
         public virtual DbSet<Payment> Payments { get; set; }
-        //public virtual DbSet<sysdiagram> sysdiagrams { get; set; }
         public virtual DbSet<User> Users { get; set; }
     }
 }

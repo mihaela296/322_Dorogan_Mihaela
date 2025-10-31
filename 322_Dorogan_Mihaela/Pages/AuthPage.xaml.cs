@@ -18,6 +18,29 @@ namespace _322_Dorogan_Mihaela.Pages
             InitializeComponent();
             TbLogin.Focus();
             UpdateMainWindowInfo();
+
+            // Проверяем базу данных при загрузке
+            this.Loaded += (s, e) => CheckDatabase();
+        }
+
+        private void CheckDatabase()
+        {
+            try
+            {
+                using (var db = new Entities())
+                {
+                    if (!db.Database.Exists())
+                    {
+                        MessageBox.Show("База данных не найдена. Пожалуйста, сначала зарегистрируйте пользователя.",
+                            "Информация", MessageBoxButton.OK, MessageBoxImage.Information);
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Ошибка проверки базы данных: {ex.Message}", "Ошибка",
+                    MessageBoxButton.OK, MessageBoxImage.Error);
+            }
         }
 
         private void UpdateMainWindowInfo()
@@ -127,6 +150,13 @@ namespace _322_Dorogan_Mihaela.Pages
 
                 using (var db = new Entities())
                 {
+                    // Проверяем существование базы
+                    if (!db.Database.Exists())
+                    {
+                        ShowError("База данных не найдена. Пожалуйста, сначала зарегистрируйтесь.");
+                        return;
+                    }
+
                     var user = db.Users
                         .AsNoTracking()
                         .FirstOrDefault(u => u.Login == TbLogin.Text.Trim() && u.Password == hashedPassword);
@@ -196,6 +226,5 @@ namespace _322_Dorogan_Mihaela.Pages
         {
             NavigationService.Navigate(new ChangePasswordPage());
         }
-
     }
 }
