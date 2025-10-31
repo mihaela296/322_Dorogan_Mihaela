@@ -71,28 +71,13 @@ namespace _322_Dorogan_Mihaela.Pages
             {
                 using (var db = new Entities())
                 {
-                    // Проверяем существование базы данных и создаем при необходимости
+                    // Создаем базу если не существует
                     if (!db.Database.Exists())
                     {
-                        MessageBox.Show("База данных не существует. Создаем новую базу...", "Информация",
-                            MessageBoxButton.OK, MessageBoxImage.Information);
-
-                        // Создаем базу данных и таблицы
                         db.Database.Create();
-
-                        // Добавляем начальные данные
                         AddInitialData(db);
-
                         MessageBox.Show("База данных успешно создана!", "Успех",
                             MessageBoxButton.OK, MessageBoxImage.Information);
-                    }
-                    else
-                    {
-                        // Проверяем существование таблиц
-                        if (!db.Users.Any())
-                        {
-                            AddInitialData(db);
-                        }
                     }
                 }
             }
@@ -254,13 +239,6 @@ namespace _322_Dorogan_Mihaela.Pages
             {
                 using (var db = new Entities())
                 {
-                    // Проверяем подключение к базе
-                    if (!db.Database.Exists())
-                    {
-                        ShowError("Не удалось подключиться к базе данных. Проверьте настройки подключения.");
-                        return;
-                    }
-
                     // Проверяем уникальность логина
                     if (db.Users.Any(u => u.Login == TbLogin.Text.Trim()))
                     {
@@ -280,41 +258,21 @@ namespace _322_Dorogan_Mihaela.Pages
                     };
 
                     db.Users.Add(newUser);
+                    db.SaveChanges();
 
-                    // Сохраняем изменения
-                    int result = db.SaveChanges();
+                    MessageBox.Show("Регистрация прошла успешно!\nТеперь вы можете войти в систему используя ваш логин и пароль.",
+                        "Успешная регистрация", MessageBoxButton.OK, MessageBoxImage.Information);
 
-                    if (result > 0)
-                    {
-                        MessageBox.Show("Регистрация прошла успешно!\nТеперь вы можете войти в систему используя ваш логин и пароль.",
-                            "Успешная регистрация", MessageBoxButton.OK, MessageBoxImage.Information);
+                    // Очищаем форму
+                    TbLogin.Clear();
+                    PbPassword.Clear();
+                    PbConfirmPassword.Clear();
+                    TbFIO.Clear();
+                    CbRole.SelectedIndex = 0;
+                    ClearError();
 
-                        // Проверяем, что данные действительно сохранились
-                        VerifyDataSaved();
-
-                        // Очищаем форму
-                        TbLogin.Clear();
-                        PbPassword.Clear();
-                        PbConfirmPassword.Clear();
-                        TbFIO.Clear();
-                        CbRole.SelectedIndex = 0;
-                        ClearError();
-
-                        NavigationService.GoBack();
-                    }
-                    else
-                    {
-                        ShowError("Не удалось сохранить пользователя в базу данных.");
-                    }
+                    NavigationService.GoBack();
                 }
-            }
-            catch (System.Data.Entity.Infrastructure.DbUpdateException dbEx)
-            {
-                ShowError($"Ошибка обновления базы данных: {dbEx.InnerException?.Message ?? dbEx.Message}");
-            }
-            catch (System.Data.SqlClient.SqlException sqlEx)
-            {
-                ShowError($"Ошибка SQL Server: {sqlEx.Message}\nНомер ошибки: {sqlEx.Number}");
             }
             catch (Exception ex)
             {
