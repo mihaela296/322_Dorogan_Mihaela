@@ -15,7 +15,9 @@ namespace _322_Dorogan_Mihaela.Pages
         {
             InitializeComponent();
             _currentAdmin = admin;
-            LoadUsers();
+
+            // Загружаем данные после полной инициализации страницы
+            this.Loaded += (s, e) => LoadUsers();
         }
 
         private void LoadUsers()
@@ -32,7 +34,11 @@ namespace _322_Dorogan_Mihaela.Pages
                     // Применение сортировки
                     users = ApplySorting(users);
 
-                    DgUsers.ItemsSource = users.ToList();
+                    // Проверяем, что DgUsers инициализирован
+                    if (DgUsers != null)
+                    {
+                        DgUsers.ItemsSource = users.ToList();
+                    }
                 }
             }
             catch (Exception ex)
@@ -44,8 +50,8 @@ namespace _322_Dorogan_Mihaela.Pages
 
         private IQueryable<User> ApplyFilters(IQueryable<User> users)
         {
-            // Поиск
-            if (!string.IsNullOrWhiteSpace(TbSearch.Text))
+            // Проверяем, что элементы управления инициализированы
+            if (TbSearch != null && !string.IsNullOrWhiteSpace(TbSearch.Text))
             {
                 var searchText = TbSearch.Text.ToLower();
                 users = users.Where(u =>
@@ -54,7 +60,7 @@ namespace _322_Dorogan_Mihaela.Pages
             }
 
             // Фильтр по роли
-            if (CbRoleFilter.SelectedItem is ComboBoxItem roleItem && roleItem.Content.ToString() != "Все")
+            if (CbRoleFilter?.SelectedItem is ComboBoxItem roleItem && roleItem.Content.ToString() != "Все")
             {
                 users = users.Where(u => u.Role == roleItem.Content.ToString());
             }
@@ -64,15 +70,20 @@ namespace _322_Dorogan_Mihaela.Pages
 
         private IQueryable<User> ApplySorting(IQueryable<User> users)
         {
+            // Проверяем, что ComboBox инициализирован
+            if (CbSort == null || CbSort.SelectedIndex < 0)
+                return users.OrderBy(u => u.FIO);
+
             return CbSort.SelectedIndex switch
             {
                 0 => users.OrderBy(u => u.FIO), // По ФИО (А-Я)
                 1 => users.OrderByDescending(u => u.FIO), // По ФИО (Я-А)
-                2 => users.OrderByDescending(u => u.ID), // По дате регистрации (предполагаем, что ID автоинкремент)
+                2 => users.OrderByDescending(u => u.ID), // По дате регистрации
                 _ => users.OrderBy(u => u.FIO)
             };
         }
 
+        // Остальные методы остаются без изменений...
         private void TbSearch_TextChanged(object sender, TextChangedEventArgs e)
         {
             LoadUsers();
@@ -90,9 +101,9 @@ namespace _322_Dorogan_Mihaela.Pages
 
         private void BtnClearFilters_Click(object sender, RoutedEventArgs e)
         {
-            TbSearch.Clear();
-            CbRoleFilter.SelectedIndex = 0;
-            CbSort.SelectedIndex = 0;
+            if (TbSearch != null) TbSearch.Clear();
+            if (CbRoleFilter != null) CbRoleFilter.SelectedIndex = 0;
+            if (CbSort != null) CbSort.SelectedIndex = 0;
             LoadUsers();
         }
 

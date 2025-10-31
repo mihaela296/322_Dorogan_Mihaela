@@ -14,7 +14,9 @@ namespace _322_Dorogan_Mihaela.Pages
         {
             InitializeComponent();
             _currentAdmin = admin;
-            LoadCategories();
+
+            // Загружаем данные после полной инициализации страницы
+            this.Loaded += (s, e) => LoadCategories();
         }
 
         private void LoadCategories()
@@ -28,7 +30,7 @@ namespace _322_Dorogan_Mihaela.Pages
                         .AsQueryable();
 
                     // Применение поиска
-                    if (!string.IsNullOrWhiteSpace(TbSearch.Text))
+                    if (TbSearch != null && !string.IsNullOrWhiteSpace(TbSearch.Text))
                     {
                         var searchText = TbSearch.Text.ToLower();
                         categories = categories.Where(c => c.Name.ToLower().Contains(searchText));
@@ -44,7 +46,11 @@ namespace _322_Dorogan_Mihaela.Pages
                             PaymentCount = c.Payments.Count
                         });
 
-                    DgCategories.ItemsSource = categoryList;
+                    // Проверяем, что DataGrid инициализирован
+                    if (DgCategories != null)
+                    {
+                        DgCategories.ItemsSource = categoryList;
+                    }
                 }
             }
             catch (Exception ex)
@@ -61,8 +67,11 @@ namespace _322_Dorogan_Mihaela.Pages
 
         private void BtnClearSearch_Click(object sender, RoutedEventArgs e)
         {
-            TbSearch.Clear();
-            LoadCategories();
+            if (TbSearch != null)
+            {
+                TbSearch.Clear();
+                LoadCategories();
+            }
         }
 
         private void BtnAddCategory_Click(object sender, RoutedEventArgs e)
