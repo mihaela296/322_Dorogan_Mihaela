@@ -31,49 +31,9 @@ namespace _322_Dorogan_Mihaela.Pages
             else
             {
                 TbTitle.Text = $"РЕДАКТИРОВАНИЕ КАТЕГОРИИ: {_editingCategory.Name}";
-                LoadCategoryInfo();
             }
 
             DataContext = _editingCategory;
-        }
-
-        private void LoadCategoryInfo()
-        {
-            try
-            {
-                using (var db = new Entities())
-                {
-                    var category = db.Categories
-                        .Include(c => c.Payments) // Исправлено на Payments
-                        .FirstOrDefault(c => c.ID == _editingCategory.ID);
-
-                    if (category != null)
-                    {
-                        var paymentCount = category.Payments.Count();
-                        var totalAmount = category.Payments.Sum(p => p.Num * p.Price);
-                        var lastPayment = category.Payments.OrderByDescending(p => p.Date).FirstOrDefault();
-
-                        var info = new System.Text.StringBuilder();
-                        info.AppendLine($"Количество платежей: {paymentCount}");
-                        info.AppendLine($"Общая сумма: {totalAmount:N2} руб.");
-
-                        if (lastPayment != null)
-                        {
-                            info.AppendLine($"Последний платеж: {lastPayment.Date:dd.MM.yyyy}");
-                        }
-                        else
-                        {
-                            info.AppendLine("Платежей нет");
-                        }
-
-                        TbCategoryInfo.Text = info.ToString();
-                    }
-                }
-            }
-            catch (Exception ex)
-            {
-                TbCategoryInfo.Text = $"Ошибка загрузки информации: {ex.Message}";
-            }
         }
 
         private void ShowError(string message)

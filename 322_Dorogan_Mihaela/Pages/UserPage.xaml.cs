@@ -243,5 +243,10 @@ namespace _322_Dorogan_Mihaela.Pages
                 NavigationService.Navigate(new AuthPage());
             }
         }
+
+        private void DgStatistics_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+
+        }
     }
 }
