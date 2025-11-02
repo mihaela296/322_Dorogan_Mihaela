@@ -14,6 +14,11 @@ namespace _322_Dorogan_Mihaela.Pages
         {
             InitializeComponent();
             _currentUser = user;
+            Loaded += UserPage_Loaded;
+        }
+
+        private void UserPage_Loaded(object sender, RoutedEventArgs e)
+        {
             InitializePage();
         }
 
@@ -59,14 +64,20 @@ namespace _322_Dorogan_Mihaela.Pages
 
                     // Фильтрация по дате
                     if (DpStartDate.SelectedDate != null)
+                    {
                         paymentsQuery = paymentsQuery.Where(p => p.Date >= DpStartDate.SelectedDate);
+                    }
 
                     if (DpEndDate.SelectedDate != null)
+                    {
                         paymentsQuery = paymentsQuery.Where(p => p.Date <= DpEndDate.SelectedDate);
+                    }
 
-                    // Фильтрация по категории
-                    if (CbCategory.SelectedItem is Category selectedCategory)
+                    // Фильтрация по категории - только если выбрана конкретная категория
+                    if (CbCategory.SelectedItem != null && CbCategory.SelectedItem is Category selectedCategory)
+                    {
                         paymentsQuery = paymentsQuery.Where(p => p.CategoryID == selectedCategory.ID);
+                    }
 
                     var payments = paymentsQuery
                         .OrderByDescending(p => p.Date)
@@ -134,6 +145,7 @@ namespace _322_Dorogan_Mihaela.Pages
         private void CbCategory_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
             LoadPayments();
+            LoadStatistics();
         }
 
         private void CbChartType_SelectionChanged(object sender, SelectionChangedEventArgs e)

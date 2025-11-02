@@ -13,13 +13,26 @@ namespace _322_Dorogan_Mihaela
     using System.Data.Entity;
     using System.Data.Entity.Infrastructure;
 
+    // Model.Context.cs
     public partial class Entities : DbContext
     {
+        private static Entities _context;
+
         public Entities()
             : base("name=Entities")
         {
-            // Включаем инициализатор базы данных
-            Database.SetInitializer(new CreateDatabaseIfNotExists<Entities>());
+            // Проверяем существование базы данных и создаем при необходимости
+            if (!Database.Exists())
+            {
+                Database.Create();
+            }
+        }
+
+        public static Entities GetContext()
+        {
+            if (_context == null)
+                _context = new Entities();
+            return _context;
         }
 
         protected override void OnModelCreating(DbModelBuilder modelBuilder)

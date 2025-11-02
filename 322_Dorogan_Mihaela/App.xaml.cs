@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Linq;
 using System.Windows;
 
 namespace _322_Dorogan_Mihaela
@@ -8,6 +9,9 @@ namespace _322_Dorogan_Mihaela
         protected override void OnStartup(StartupEventArgs e)
         {
             base.OnStartup(e);
+
+            // Инициализация базы данных при запуске
+            InitializeDatabase();
 
             // Глобальная обработка необработанных исключений
             AppDomain.CurrentDomain.UnhandledException += (s, args) =>
@@ -22,6 +26,74 @@ namespace _322_Dorogan_Mihaela
                     "Ошибка", MessageBoxButton.OK, MessageBoxImage.Error);
                 args.Handled = true;
             };
+        }
+
+        private void InitializeDatabase()
+        {
+            try
+            {
+                using (var db = new Entities())
+                {
+                    // Создаем базу если не существует
+                    if (!db.Database.Exists())
+                    {
+                        db.Database.Create();
+
+                        // Добавляем начальные данные
+                        AddInitialData(db);
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Ошибка инициализации базы данных: {ex.Message}", "Ошибка",
+                    MessageBoxButton.OK, MessageBoxImage.Error);
+            }
+        }
+
+        private void AddInitialData(Entities db)
+        {
+            // Добавляем администратора по умолчанию
+            if (!db.Users.Any(u => u.Login == "admin"))
+            {
+                var adminUser = new User
+                {
+                    Login = "admin",
+                    Password = GetHash("admin123"), // Нужно добавить метод GetHash
+                    FIO = "Администратор Системы",
+                    Role = "Admin"
+                };
+                db.Users.Add(adminUser);
+            }
+
+            // Добавляем базовые категории
+            if (!db.Categories.Any())
+            {
+                var categories = new[]
+                {
+                new Category { Name = "Продукты питания" },
+                new Category { Name = "Коммунальные услуги" },
+                new Category { Name = "Транспорт" },
+                new Category { Name = "Развлечения" },
+                new Category { Name = "Одежда" }
+            };
+
+                foreach (var category in categories)
+                {
+                    db.Categories.Add(category);
+                }
+            }
+
+            db.SaveChanges();
+        }
+
+        private string GetHash(string input)
+        {
+            using (var sha1 = System.Security.Cryptography.SHA1.Create())
+            {
+                var hash = sha1.ComputeHash(System.Text.Encoding.UTF8.GetBytes(input));
+                return string.Concat(hash.Select(b => b.ToString("X2")));
+            }
         }
     }
 }

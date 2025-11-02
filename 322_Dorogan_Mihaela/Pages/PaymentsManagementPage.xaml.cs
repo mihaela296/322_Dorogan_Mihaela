@@ -3,7 +3,6 @@ using System.Data.Entity;
 using System.Linq;
 using System.Windows;
 using System.Windows.Controls;
-using Microsoft.Win32;
 
 namespace _322_Dorogan_Mihaela.Pages
 {
@@ -15,6 +14,11 @@ namespace _322_Dorogan_Mihaela.Pages
         {
             InitializeComponent();
             _currentAdmin = admin;
+            Loaded += PaymentsManagementPage_Loaded;
+        }
+
+        private void PaymentsManagementPage_Loaded(object sender, RoutedEventArgs e)
+        {
             InitializeFilters();
             LoadPayments();
         }
@@ -52,13 +56,38 @@ namespace _322_Dorogan_Mihaela.Pages
             {
                 using (var db = new Entities())
                 {
-                    var paymentsQuery = db.Payments
+                    // Начинаем с базового запроса
+                    IQueryable<Payment> paymentsQuery = db.Payments
                         .Include(p => p.User)
-                        .Include(p => p.Category)
-                        .AsQueryable();
+                        .Include(p => p.Category);
 
-                    // Применение фильтров
-                    paymentsQuery = ApplyFilters(paymentsQuery);
+                    // Применяем фильтры только если они установлены
+                    if (DpStartDate.SelectedDate != null)
+                    {
+                        paymentsQuery = paymentsQuery.Where(p => p.Date >= DpStartDate.SelectedDate);
+                    }
+
+                    if (DpEndDate.SelectedDate != null)
+                    {
+                        paymentsQuery = paymentsQuery.Where(p => p.Date <= DpEndDate.SelectedDate);
+                    }
+
+                    // Для комбобоксов проверяем SelectedItem
+                    if (CbUser.SelectedItem != null && CbUser.SelectedItem is User selectedUser)
+                    {
+                        paymentsQuery = paymentsQuery.Where(p => p.UserID == selectedUser.ID);
+                    }
+
+                    if (CbCategory.SelectedItem != null && CbCategory.SelectedItem is Category selectedCategory)
+                    {
+                        paymentsQuery = paymentsQuery.Where(p => p.CategoryID == selectedCategory.ID);
+                    }
+
+                    if (!string.IsNullOrWhiteSpace(TbSearch.Text))
+                    {
+                        var searchText = TbSearch.Text.ToLower();
+                        paymentsQuery = paymentsQuery.Where(p => p.Name.ToLower().Contains(searchText));
+                    }
 
                     var payments = paymentsQuery
                         .OrderByDescending(p => p.Date)
@@ -84,33 +113,6 @@ namespace _322_Dorogan_Mihaela.Pages
             {
                 MessageBox.Show($"Ошибка загрузки платежей: {ex.Message}");
             }
-        }
-
-        private IQueryable<Payment> ApplyFilters(IQueryable<Payment> payments)
-        {
-            // Фильтр по дате
-            if (DpStartDate.SelectedDate != null)
-                payments = payments.Where(p => p.Date >= DpStartDate.SelectedDate);
-
-            if (DpEndDate.SelectedDate != null)
-                payments = payments.Where(p => p.Date <= DpEndDate.SelectedDate);
-
-            // Фильтр по пользователю
-            if (CbUser.SelectedItem is User selectedUser)
-                payments = payments.Where(p => p.UserID == selectedUser.ID);
-
-            // Фильтр по категории
-            if (CbCategory.SelectedItem is Category selectedCategory)
-                payments = payments.Where(p => p.CategoryID == selectedCategory.ID);
-
-            // Поиск по названию
-            if (!string.IsNullOrWhiteSpace(TbSearch.Text))
-            {
-                var searchText = TbSearch.Text.ToLower();
-                payments = payments.Where(p => p.Name.ToLower().Contains(searchText));
-            }
-
-            return payments;
         }
 
         private void UpdateStatistics(IQueryable<Payment> paymentsQuery)
@@ -217,7 +219,7 @@ namespace _322_Dorogan_Mihaela.Pages
         {
             try
             {
-                var saveDialog = new SaveFileDialog
+                var saveDialog = new Microsoft.Win32.SaveFileDialog
                 {
                     Filter = "Excel files (*.xlsx)|*.xlsx",
                     FileName = $"Платежи_{DateTime.Now:yyyyMMdd_HHmmss}.xlsx"
@@ -225,7 +227,6 @@ namespace _322_Dorogan_Mihaela.Pages
 
                 if (saveDialog.ShowDialog() == true)
                 {
-                    // Здесь должна быть реализация экспорта в Excel
                     MessageBox.Show("Функция экспорта в Excel будет реализована позже", "Информация");
                 }
             }
