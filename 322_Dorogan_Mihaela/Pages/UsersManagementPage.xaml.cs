@@ -1,9 +1,11 @@
-﻿using System;
+﻿using Microsoft.Win32;
+using System;
+using System.Collections.Generic;
+using System.Data.Entity;
+using System.IO;
 using System.Linq;
 using System.Windows;
 using System.Windows.Controls;
-using Microsoft.Win32;
-using System.Data.Entity;
 
 namespace _322_Dorogan_Mihaela.Pages
 {
@@ -227,23 +229,138 @@ namespace _322_Dorogan_Mihaela.Pages
                 var saveDialog = new SaveFileDialog
                 {
                     Filter = "Excel files (*.xlsx)|*.xlsx",
-                    FileName = $"Пользователи_{DateTime.Now:yyyyMMdd_HHmmss}.xlsx"
+                    FileName = $"Пользователи_{DateTime.Now:yyyyMMdd_HHmmss}",
+                    DefaultExt = ".xlsx"
                 };
 
                 if (saveDialog.ShowDialog() == true)
                 {
-                    // Здесь должна быть реализация экспорта в Excel
-                    // Временная заглушка
-                    MessageBox.Show("Функция экспорта в Excel будет реализована позже", "Информация",
-                        MessageBoxButton.OK, MessageBoxImage.Information);
+                    // Простая визуальная обратная связь
+                    string originalText = BtnExportUsers.Content.ToString();
+                    BtnExportUsers.Content = "Экспорт...";
+                    BtnExportUsers.IsEnabled = false;
+
+                    try
+                    {
+                        // Получаем данные
+                        var users = GetUsersForExport();
+                        if (users == null || users.Count == 0)
+                        {
+                            MessageBox.Show("Нет данных для экспорта", "Информация");
+                            return;
+                        }
+
+                        // Создаем Excel пакет
+                        using (var excelPackage = new OfficeOpenXml.ExcelPackage())
+                        {
+                            var worksheet = excelPackage.Workbook.Worksheets.Add("Пользователи");
+
+                            // Простые заголовки
+                            worksheet.Cells[1, 1].Value = "ID";
+                            worksheet.Cells[1, 2].Value = "Логин";
+                            worksheet.Cells[1, 3].Value = "ФИО";
+                            worksheet.Cells[1, 4].Value = "Роль";
+
+                            // Делаем заголовки жирными
+                            for (int i = 1; i <= 4; i++)
+                            {
+                                worksheet.Cells[1, i].Style.Font.Bold = true;
+                            }
+
+                            // Заполняем данные
+                            int row = 2;
+                            foreach (var user in users)
+                            {
+                                worksheet.Cells[row, 1].Value = user.ID;
+                                worksheet.Cells[row, 2].Value = user.Login;
+                                worksheet.Cells[row, 3].Value = user.FIO;
+                                worksheet.Cells[row, 4].Value = user.Role;
+                                row++;
+                            }
+
+                            // Автоподбор ширины столбцов
+                            worksheet.Cells[1, 1, row, 4].AutoFitColumns();
+
+                            // Сохраняем файл
+                            FileInfo fileInfo = new FileInfo(saveDialog.FileName);
+                            excelPackage.SaveAs(fileInfo);
+                        }
+
+                        MessageBox.Show($"Данные экспортированы успешно!\n\nФайл: {saveDialog.FileName}",
+                            "Экспорт завершен", MessageBoxButton.OK, MessageBoxImage.Information);
+                    }
+                    catch (Exception ex)
+                    {
+                        MessageBox.Show($"Ошибка при сохранении файла: {ex.Message}\n\n" +
+                            "Убедитесь, что:\n" +
+                            "• Файл не открыт в другой программе\n" +
+                            "• У вас есть права на запись в выбранную папку\n" +
+                            "• Имя файла не содержит запрещенных символов",
+                            "Ошибка экспорта", MessageBoxButton.OK, MessageBoxImage.Error);
+                    }
+                    finally
+                    {
+                        // Восстанавливаем кнопку
+                        BtnExportUsers.Content = originalText;
+                        BtnExportUsers.IsEnabled = true;
+                    }
                 }
             }
             catch (Exception ex)
             {
-                MessageBox.Show($"Ошибка экспорта: {ex.Message}", "Ошибка",
-                    MessageBoxButton.OK, MessageBoxImage.Error);
+                MessageBox.Show($"Ошибка: {ex.Message}", "Ошибка");
+                BtnExportUsers.Content = "Экспорт в Excel";
+                BtnExportUsers.IsEnabled = true;
             }
         }
+
+        // Новый метод для получения пользователей для экспорта
+        private List<User> GetUsersForExport()
+{
+    try
+    {
+        using (var db = new Entities())
+        {
+            var usersQuery = db.Users.AsQueryable();
+
+            // Применяем фильтры
+            if (TbSearch != null && !string.IsNullOrWhiteSpace(TbSearch.Text))
+            {
+                var searchText = TbSearch.Text.ToLower();
+                usersQuery = usersQuery.Where(u =>
+                    u.FIO.ToLower().Contains(searchText) ||
+                    u.Login.ToLower().Contains(searchText));
+            }
+
+            // Фильтр по роли
+            if (CbRoleFilter?.SelectedItem is ComboBoxItem roleItem && roleItem.Content.ToString() != "Все")
+            {
+                usersQuery = usersQuery.Where(u => u.Role == roleItem.Content.ToString());
+            }
+
+            // Применяем сортировку
+            if (CbSort == null || CbSort.SelectedIndex < 0)
+                usersQuery = usersQuery.OrderBy(u => u.FIO);
+            else
+            {
+                switch (CbSort.SelectedIndex)
+                {
+                    case 0: usersQuery = usersQuery.OrderBy(u => u.FIO); break;
+                    case 1: usersQuery = usersQuery.OrderByDescending(u => u.FIO); break;
+                    case 2: usersQuery = usersQuery.OrderByDescending(u => u.ID); break;
+                    default: usersQuery = usersQuery.OrderBy(u => u.FIO); break;
+                }
+            }
+
+            return usersQuery.ToList();
+        }
+    }
+    catch (Exception ex)
+    {
+        MessageBox.Show($"Ошибка получения данных для экспорта: {ex.Message}");
+        return new List<User>();
+    }
+}
 
         private void BtnRefresh_Click(object sender, RoutedEventArgs e)
         {
