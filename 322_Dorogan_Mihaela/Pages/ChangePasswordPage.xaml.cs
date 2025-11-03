@@ -11,10 +11,29 @@ namespace _322_Dorogan_Mihaela.Pages
 {
     public partial class ChangePasswordPage : Page
     {
+        private User _currentUser;
+
+        // Конструктор без параметров (для общего использования)
         public ChangePasswordPage()
         {
             InitializeComponent();
             TbLogin.Focus();
+        }
+
+        // Конструктор с параметром (для использования из UserPage)
+        public ChangePasswordPage(User user) : this()
+        {
+            _currentUser = user;
+
+            // Автозаполняем логин текущего пользователя
+            if (_currentUser != null)
+            {
+                TbLogin.Text = _currentUser.Login;
+                TbLogin.IsEnabled = false; // Запрещаем изменение логина
+
+                // Переводим фокус на текущий пароль
+                PbCurrentPassword.Focus();
+            }
         }
 
         private string GetHash(string input)
@@ -61,7 +80,119 @@ namespace _322_Dorogan_Mihaela.Pages
 
         private void BtnChangePassword_Click(object sender, RoutedEventArgs e)
         {
-            // Валидация полей
+            // Если пользователь уже авторизован, используем его данные
+            if (_currentUser != null)
+            {
+                ChangePasswordForCurrentUser();
+            }
+            else
+            {
+                ChangePasswordWithLogin();
+            }
+        }
+
+        private void ChangePasswordForCurrentUser()
+        {
+            // Валидация полей для авторизованного пользователя
+            if (string.IsNullOrWhiteSpace(PbCurrentPassword.Password))
+            {
+                ShowError("Введите текущий пароль!");
+                PbCurrentPassword.Focus();
+                return;
+            }
+
+            if (string.IsNullOrWhiteSpace(PbNewPassword.Password))
+            {
+                ShowError("Введите новый пароль!");
+                PbNewPassword.Focus();
+                return;
+            }
+
+            if (string.IsNullOrWhiteSpace(PbConfirmPassword.Password))
+            {
+                ShowError("Подтвердите новый пароль!");
+                PbConfirmPassword.Focus();
+                return;
+            }
+
+            // Проверка нового пароля
+            if (!ValidatePassword(PbNewPassword.Password))
+            {
+                ShowError("Новый пароль не соответствует требованиям!\n\nТребования к паролю:\n• Минимум 6 символов\n• Только латинские буквы и цифры\n• Хотя бы одна цифра и одна буква");
+                PbNewPassword.Clear();
+                PbConfirmPassword.Clear();
+                PbNewPassword.Focus();
+                return;
+            }
+
+            // Проверка совпадения паролей
+            if (PbNewPassword.Password != PbConfirmPassword.Password)
+            {
+                ShowError("Новые пароли не совпадают!");
+                PbConfirmPassword.Clear();
+                PbConfirmPassword.Focus();
+                return;
+            }
+
+            // Проверка что новый пароль отличается от старого
+            if (PbCurrentPassword.Password == PbNewPassword.Password)
+            {
+                ShowError("Новый пароль должен отличаться от текущего!");
+                PbNewPassword.Clear();
+                PbConfirmPassword.Clear();
+                PbNewPassword.Focus();
+                return;
+            }
+
+            try
+            {
+                using (var db = new Entities())
+                {
+                    string hashedCurrentPassword = GetHash(PbCurrentPassword.Password);
+
+                    // Ищем пользователя в базе данных
+                    var user = db.Users.Find(_currentUser.ID);
+
+                    if (user == null)
+                    {
+                        ShowError("Пользователь не найден!");
+                        return;
+                    }
+
+                    // Проверяем текущий пароль
+                    if (user.Password != hashedCurrentPassword)
+                    {
+                        ShowError("Неверный текущий пароль!");
+                        PbCurrentPassword.Clear();
+                        PbCurrentPassword.Focus();
+                        return;
+                    }
+
+                    // Обновление пароля
+                    user.Password = GetHash(PbNewPassword.Password);
+                    db.SaveChanges();
+
+                    MessageBox.Show("Пароль успешно изменен!", "Успех",
+                        MessageBoxButton.OK, MessageBoxImage.Information);
+
+                    // Очистка полей
+                    PbCurrentPassword.Clear();
+                    PbNewPassword.Clear();
+                    PbConfirmPassword.Clear();
+                    ClearError();
+
+                    NavigationService.GoBack();
+                }
+            }
+            catch (Exception ex)
+            {
+                ShowError($"Ошибка при смене пароля: {ex.Message}");
+            }
+        }
+
+        private void ChangePasswordWithLogin()
+        {
+            // Валидация полей для неавторизованного пользователя
             if (string.IsNullOrWhiteSpace(TbLogin.Text))
             {
                 ShowError("Введите логин!");
@@ -163,6 +294,22 @@ namespace _322_Dorogan_Mihaela.Pages
         private void BtnCancel_Click(object sender, RoutedEventArgs e)
         {
             NavigationService.GoBack();
+        }
+
+        // Обработчик загрузки страницы
+        private void Page_Loaded(object sender, RoutedEventArgs e)
+        {
+            // Если пользователь передан, настраиваем интерфейс соответствующим образом
+            if (_currentUser != null)
+            {
+                TbLogin.Text = _currentUser.Login;
+                TbLogin.IsEnabled = false;
+
+                // Показываем подсказку, что логин заполнен автоматически
+                var toolTip = new ToolTip();
+                toolTip.Content = "Логин заполнен автоматически для текущего пользователя";
+                TbLogin.ToolTip = toolTip;
+            }
         }
     }
 }

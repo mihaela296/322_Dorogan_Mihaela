@@ -30,8 +30,7 @@ namespace _322_Dorogan_Mihaela
 
         public static Entities GetContext()
         {
-            if (_context == null)
-                _context = new Entities();
+            if (_context == null) _context = new Entities();
             return _context;
         }
 

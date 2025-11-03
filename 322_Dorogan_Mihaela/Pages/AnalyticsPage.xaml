@@ -1,6 +1,8 @@
 ﻿<Page x:Class="_322_Dorogan_Mihaela.Pages.AnalyticsPage"
       xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
       xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+      xmlns:winforms="clr-namespace:System.Windows.Forms.Integration;assembly=WindowsFormsIntegration"
+      xmlns:forms="clr-namespace:System.Windows.Forms.DataVisualization.Charting;assembly=System.Windows.Forms.DataVisualization"
       Title="Аналитика платежей">
 
     <Grid Background="{StaticResource PrimaryBrush1}">
@@ -42,21 +44,25 @@
                     <!-- Управление -->
                     <Border Grid.Row="0" Background="{StaticResource SecondaryBrush1}" Margin="10" Padding="10">
                         <StackPanel Orientation="Horizontal" Margin="0">
-                            <Label Content="Период:" FontWeight="Bold" VerticalAlignment="Center" Margin="0,0,5,0"/>
-                            <DatePicker x:Name="DpCatStartDate" Width="120" SelectedDateChanged="DateRange_Changed"/>
-                            <Label Content="-" VerticalAlignment="Center" Margin="5,0"/>
-                            <DatePicker x:Name="DpCatEndDate" Width="120" SelectedDateChanged="DateRange_Changed"/>
-                            <Button x:Name="BtnExportCatChart" Content="📈 Экспорт" Width="120" Height="30"
+                            <Label Content="Тип диаграммы:" FontWeight="Bold" VerticalAlignment="Center" Margin="0,0,5,0"/>
+                            <ComboBox x:Name="CmbCatChartType" Width="120" SelectionChanged="ChartType_Changed">
+                                <ComboBoxItem Content="Столбчатая" IsSelected="True"/>
+                                <ComboBoxItem Content="Круговая"/>
+                                <ComboBoxItem Content="Линейная"/>
+                            </ComboBox>
+
+                            <Button x:Name="BtnExportCatChart" Content="📈 Экспорт в Excel" Width="150" Height="30"
                                     Click="BtnExportCatChart_Click" Margin="20,0,0,0"/>
                         </StackPanel>
                     </Border>
 
-                    <!-- Заглушка для диаграммы -->
+                    <!-- Диаграмма -->
                     <Border Grid.Row="1" Background="White" Margin="10" BorderBrush="Gray" BorderThickness="1">
-                        <TextBlock Text="Диаграмма по категориям будет отображена здесь" 
-                                  HorizontalAlignment="Center" VerticalAlignment="Center"
-                                  FontSize="14" Foreground="Gray" TextWrapping="Wrap"
-                                  TextAlignment="Center" Margin="20"/>
+                        <winforms:WindowsFormsHost x:Name="CatChartHost">
+                            <winforms:WindowsFormsHost.Child>
+                                <forms:Chart x:Name="ChartCategories"/>
+                            </winforms:WindowsFormsHost.Child>
+                        </winforms:WindowsFormsHost>
                     </Border>
                 </Grid>
             </TabItem>
@@ -72,21 +78,26 @@
                     <!-- Управление -->
                     <Border Grid.Row="0" Background="{StaticResource SecondaryBrush1}" Margin="10" Padding="10">
                         <StackPanel Orientation="Horizontal" Margin="0">
-                            <Label Content="Период:" FontWeight="Bold" VerticalAlignment="Center" Margin="0,0,5,0"/>
-                            <DatePicker x:Name="DpUserStartDate" Width="120" SelectedDateChanged="DateRange_Changed"/>
-                            <Label Content="-" VerticalAlignment="Center" Margin="5,0"/>
-                            <DatePicker x:Name="DpUserEndDate" Width="120" SelectedDateChanged="DateRange_Changed"/>
-                            <Button x:Name="BtnExportUserChart" Content="📈 Экспорт" Width="120" Height="30"
+                            <Label Content="Топ:" FontWeight="Bold" VerticalAlignment="Center" Margin="0,0,5,0"/>
+                            <ComboBox x:Name="CmbUserTopCount" Width="80" SelectionChanged="TopCount_Changed">
+                                <ComboBoxItem Content="5" IsSelected="True"/>
+                                <ComboBoxItem Content="10"/>
+                                <ComboBoxItem Content="20"/>
+                                <ComboBoxItem Content="Все"/>
+                            </ComboBox>
+
+                            <Button x:Name="BtnExportUserChart" Content="📈 Экспорт в Excel" Width="150" Height="30"
                                     Click="BtnExportUserChart_Click" Margin="20,0,0,0"/>
                         </StackPanel>
                     </Border>
 
-                    <!-- Заглушка для диаграммы -->
+                    <!-- Диаграмма -->
                     <Border Grid.Row="1" Background="White" Margin="10" BorderBrush="Gray" BorderThickness="1">
-                        <TextBlock Text="Диаграмма по пользователям будет отображена здесь" 
-                                  HorizontalAlignment="Center" VerticalAlignment="Center"
-                                  FontSize="14" Foreground="Gray" TextWrapping="Wrap"
-                                  TextAlignment="Center" Margin="20"/>
+                        <winforms:WindowsFormsHost x:Name="UserChartHost">
+                            <winforms:WindowsFormsHost.Child>
+                                <forms:Chart x:Name="ChartUsers"/>
+                            </winforms:WindowsFormsHost.Child>
+                        </winforms:WindowsFormsHost>
                     </Border>
                 </Grid>
             </TabItem>
@@ -102,21 +113,25 @@
                     <!-- Управление -->
                     <Border Grid.Row="0" Background="{StaticResource SecondaryBrush1}" Margin="10" Padding="10">
                         <StackPanel Orientation="Horizontal" Margin="0">
-                            <Label Content="Период:" FontWeight="Bold" VerticalAlignment="Center" Margin="0,0,5,0"/>
-                            <DatePicker x:Name="DpTrendStartDate" Width="120" SelectedDateChanged="DateRange_Changed"/>
-                            <Label Content="-" VerticalAlignment="Center" Margin="5,0"/>
-                            <DatePicker x:Name="DpTrendEndDate" Width="120" SelectedDateChanged="DateRange_Changed"/>
-                            <Button x:Name="BtnExportTrend" Content="📈 Экспорт" Width="120" Height="30"
+                            <Label Content="Группировка:" FontWeight="Bold" VerticalAlignment="Center" Margin="0,0,5,0"/>
+                            <ComboBox x:Name="CmbTrendGroupBy" Width="120" SelectionChanged="GroupBy_Changed">
+                                <ComboBoxItem Content="По дням" IsSelected="True"/>
+                                <ComboBoxItem Content="По неделям"/>
+                                <ComboBoxItem Content="По месяцам"/>
+                            </ComboBox>
+
+                            <Button x:Name="BtnExportTrend" Content="📈 Экспорт в Excel" Width="150" Height="30"
                                     Click="BtnExportTrend_Click" Margin="20,0,0,0"/>
                         </StackPanel>
                     </Border>
 
-                    <!-- Заглушка для диаграммы -->
+                    <!-- Диаграмма -->
                     <Border Grid.Row="1" Background="White" Margin="10" BorderBrush="Gray" BorderThickness="1">
-                        <TextBlock Text="Диаграмма динамики платежей будет отображена здесь" 
-                                  HorizontalAlignment="Center" VerticalAlignment="Center"
-                                  FontSize="14" Foreground="Gray" TextWrapping="Wrap"
-                                  TextAlignment="Center" Margin="20"/>
+                        <winforms:WindowsFormsHost x:Name="TrendChartHost">
+                            <winforms:WindowsFormsHost.Child>
+                                <forms:Chart x:Name="ChartTrend"/>
+                            </winforms:WindowsFormsHost.Child>
+                        </winforms:WindowsFormsHost>
                     </Border>
                 </Grid>
             </TabItem>
