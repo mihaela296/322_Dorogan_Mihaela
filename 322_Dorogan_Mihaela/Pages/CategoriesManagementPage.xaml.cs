@@ -23,11 +23,9 @@ namespace _322_Dorogan_Mihaela.Pages
         {
             try
             {
-                using (var db = new Entities())
+                using (var db = new DEntities())
                 {
-                    var categories = db.Categories
-                        .Include(c => c.Payments)
-                        .AsQueryable();
+                    var categories = db.Categories.AsQueryable();
 
                     // Применение поиска
                     if (TbSearch != null && !string.IsNullOrWhiteSpace(TbSearch.Text))
@@ -36,20 +34,22 @@ namespace _322_Dorogan_Mihaela.Pages
                         categories = categories.Where(c => c.Name.ToLower().Contains(searchText));
                     }
 
-                    var categoryList = categories
+                    // Получаем количество платежей для каждой категории отдельным запросом
+                    var categoriesWithPaymentCount = categories
                         .OrderBy(c => c.Name)
                         .ToList()
                         .Select(c => new
                         {
                             c.ID,
                             c.Name,
-                            PaymentCount = c.Payments.Count
-                        });
+                            PaymentCount = db.Payments.Count(p => p.CategoryID == c.ID) // Исправленный способ подсчета
+                        })
+                        .ToList();
 
                     // Проверяем, что DataGrid инициализирован
                     if (DgCategories != null)
                     {
-                        DgCategories.ItemsSource = categoryList;
+                        DgCategories.ItemsSource = categoriesWithPaymentCount;
                     }
                 }
             }
@@ -85,7 +85,7 @@ namespace _322_Dorogan_Mihaela.Pages
             if (category != null)
             {
                 dynamic cat = category;
-                using (var db = new Entities())
+                using (var db = new DEntities())
                 {
                     var categoryToEdit = db.Categories.Find(cat.ID);
                     if (categoryToEdit != null)
@@ -121,7 +121,7 @@ namespace _322_Dorogan_Mihaela.Pages
                 {
                     try
                     {
-                        using (var db = new Entities())
+                        using (var db = new DEntities())
                         {
                             var categoryToDelete = db.Categories.Find(cat.ID);
                             if (categoryToDelete != null)

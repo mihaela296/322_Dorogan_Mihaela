@@ -43,7 +43,7 @@ namespace _322_Dorogan_Mihaela.Pages
         {
             try
             {
-                using (var db = new Entities())
+                using (var db = new DEntities())
                 {
                     // Загрузка пользователей
                     var users = db.Users.OrderBy(u => u.FIO).ToList();
@@ -98,7 +98,7 @@ namespace _322_Dorogan_Mihaela.Pages
 
             try
             {
-                using (var db = new Entities())
+                using (var db = new DEntities())
                 {
                     if (_isNewPayment)
                     {

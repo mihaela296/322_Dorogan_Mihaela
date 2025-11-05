@@ -36,11 +36,6 @@ namespace _322_Dorogan_Mihaela.Pages
             NavigationService.Navigate(new AnalyticsPage(_currentUser));
         }
 
-        private void BtnReports_Click(object sender, RoutedEventArgs e)
-        {
-            NavigationService.Navigate(new ReportsPage(_currentUser));
-        }
-
         private void BtnChangePass_Click(object sender, RoutedEventArgs e)
         {
             NavigationService.Navigate(new ChangePasswordPage());

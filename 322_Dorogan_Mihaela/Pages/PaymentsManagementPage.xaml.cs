@@ -5,6 +5,8 @@ using System.IO;
 using System.Linq;
 using System.Windows;
 using System.Windows.Controls;
+using Microsoft.Win32;
+using Word = Microsoft.Office.Interop.Word;
 
 namespace _322_Dorogan_Mihaela.Pages
 {
@@ -29,7 +31,7 @@ namespace _322_Dorogan_Mihaela.Pages
         {
             try
             {
-                using (var db = new Entities())
+                using (var db = new DEntities())
                 {
                     // Загрузка пользователей
                     var users = db.Users.OrderBy(u => u.FIO).ToList();
@@ -56,59 +58,11 @@ namespace _322_Dorogan_Mihaela.Pages
         {
             try
             {
-                using (var db = new Entities())
+                using (var db = new DEntities())
                 {
-                    // Начинаем с базового запроса
-                    IQueryable<Payment> paymentsQuery = db.Payments
-                        .Include(p => p.User)
-                        .Include(p => p.Category);
-
-                    // Применяем фильтры только если они установлены
-                    if (DpStartDate.SelectedDate != null)
-                    {
-                        paymentsQuery = paymentsQuery.Where(p => p.Date >= DpStartDate.SelectedDate);
-                    }
-
-                    if (DpEndDate.SelectedDate != null)
-                    {
-                        paymentsQuery = paymentsQuery.Where(p => p.Date <= DpEndDate.SelectedDate);
-                    }
-
-                    // Для комбобоксов проверяем SelectedItem
-                    if (CbUser.SelectedItem != null && CbUser.SelectedItem is User selectedUser)
-                    {
-                        paymentsQuery = paymentsQuery.Where(p => p.UserID == selectedUser.ID);
-                    }
-
-                    if (CbCategory.SelectedItem != null && CbCategory.SelectedItem is Category selectedCategory)
-                    {
-                        paymentsQuery = paymentsQuery.Where(p => p.CategoryID == selectedCategory.ID);
-                    }
-
-                    if (!string.IsNullOrWhiteSpace(TbSearch.Text))
-                    {
-                        var searchText = TbSearch.Text.ToLower();
-                        paymentsQuery = paymentsQuery.Where(p => p.Name.ToLower().Contains(searchText));
-                    }
-
-                    var payments = paymentsQuery
-                        .OrderByDescending(p => p.Date)
-                        .ThenByDescending(p => p.ID)
-                        .ToList()
-                        .Select(p => new
-                        {
-                            p.ID,
-                            p.Date,
-                            p.User,
-                            p.Category,
-                            p.Name,
-                            p.Num,
-                            p.Price,
-                            TotalAmount = p.Num * p.Price
-                        });
-
+                    var payments = GetFilteredPayments(db);
                     DgPayments.ItemsSource = payments;
-                    UpdateStatistics(paymentsQuery);
+                    UpdateStatistics(payments);
                 }
             }
             catch (Exception ex)
@@ -117,12 +71,64 @@ namespace _322_Dorogan_Mihaela.Pages
             }
         }
 
-        private void UpdateStatistics(IQueryable<Payment> paymentsQuery)
+        private List<dynamic> GetFilteredPayments(DEntities db)
+        {
+            IQueryable<Payment> paymentsQuery = db.Payments
+                .Include(p => p.User)
+                .Include(p => p.Category);
+
+            // Применяем фильтры
+            if (DpStartDate.SelectedDate != null)
+            {
+                paymentsQuery = paymentsQuery.Where(p => p.Date >= DpStartDate.SelectedDate);
+            }
+
+            if (DpEndDate.SelectedDate != null)
+            {
+                paymentsQuery = paymentsQuery.Where(p => p.Date <= DpEndDate.SelectedDate);
+            }
+
+            if (CbUser.SelectedItem != null && CbUser.SelectedItem is User selectedUser)
+            {
+                paymentsQuery = paymentsQuery.Where(p => p.UserID == selectedUser.ID);
+            }
+
+            if (CbCategory.SelectedItem != null && CbCategory.SelectedItem is Category selectedCategory)
+            {
+                paymentsQuery = paymentsQuery.Where(p => p.CategoryID == selectedCategory.ID);
+            }
+
+            if (!string.IsNullOrWhiteSpace(TbSearch.Text))
+            {
+                var searchText = TbSearch.Text.ToLower();
+                paymentsQuery = paymentsQuery.Where(p => p.Name.ToLower().Contains(searchText));
+            }
+
+            return paymentsQuery
+                .OrderByDescending(p => p.Date)
+                .ThenByDescending(p => p.ID)
+                .ToList()
+                .Select(p => new
+                {
+                    p.ID,
+                    p.Date,
+                    p.User,
+                    p.Category,
+                    p.Name,
+                    p.Num,
+                    p.Price,
+                    TotalAmount = p.Num * p.Price
+                })
+                .Cast<dynamic>()
+                .ToList();
+        }
+
+        private void UpdateStatistics(List<dynamic> payments)
         {
             try
             {
-                var totalCount = paymentsQuery.Count();
-                var totalAmount = paymentsQuery.Sum(p => (decimal?)(p.Num * p.Price)) ?? 0;
+                var totalCount = payments.Count;
+                var totalAmount = payments.Sum(p => (decimal)p.TotalAmount);
                 var avgAmount = totalCount > 0 ? totalAmount / totalCount : 0;
 
                 TbStats.Text = $"Всего: {totalCount} платежей | Сумма: {totalAmount:N2} руб. | Средний: {avgAmount:N2} руб.";
@@ -169,7 +175,7 @@ namespace _322_Dorogan_Mihaela.Pages
             if (payment != null)
             {
                 dynamic pay = payment;
-                using (var db = new Entities())
+                using (var db = new DEntities())
                 {
                     var paymentToEdit = db.Payments.Find(pay.ID);
                     if (paymentToEdit != null)
@@ -197,7 +203,7 @@ namespace _322_Dorogan_Mihaela.Pages
                 {
                     try
                     {
-                        using (var db = new Entities())
+                        using (var db = new DEntities())
                         {
                             var paymentToDelete = db.Payments.Find(pay.ID);
                             if (paymentToDelete != null)
@@ -217,119 +223,251 @@ namespace _322_Dorogan_Mihaela.Pages
             }
         }
 
-        private void BtnExportPayments_Click(object sender, RoutedEventArgs e)
+        private void BtnExportPaymentsExcel_Click(object sender, RoutedEventArgs e)
+        {
+            ExportToExcel();
+        }
+
+        private void BtnExportPaymentsWord_Click(object sender, RoutedEventArgs e)
+        {
+            ExportToWord();
+        }
+
+        private void ExportToExcel()
         {
             try
             {
-                var saveDialog = new Microsoft.Win32.SaveFileDialog
+                var saveDialog = new SaveFileDialog
                 {
-                    Filter = "Excel files (*.xlsx)|*.xlsx",
+                    Filter = "CSV files (*.csv)|*.csv|Excel files (*.xlsx)|*.xlsx",
                     FileName = $"Платежи_{DateTime.Now:yyyyMMdd_HHmmss}",
-                    DefaultExt = ".xlsx"
+                    DefaultExt = ".csv"
                 };
 
                 if (saveDialog.ShowDialog() == true)
                 {
-                    // Простая визуальная обратная связь
-                    string originalText = BtnExportPayments.Content.ToString();
-                    BtnExportPayments.Content = "Экспорт...";
-                    BtnExportPayments.IsEnabled = false;
+                    // Всегда сохраняем как CSV для надежности
+                    string csvFilePath = Path.ChangeExtension(saveDialog.FileName, ".csv");
+                    ExportToCsv(csvFilePath);
+                }
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Ошибка экспорта: {ex.Message}", "Ошибка");
+            }
+        }
+
+        private void ExportToCsv(string filePath)
+        {
+            try
+            {
+                var payments = GetPaymentsForExport();
+                if (payments.Count == 0)
+                {
+                    MessageBox.Show("Нет данных для экспорта", "Информация");
+                    return;
+                }
+
+                var csvLines = new List<string>
+                {
+                    "ID;Дата;Пользователь;Категория;Название;Количество;Цена;Сумма"
+                };
+
+                foreach (var payment in payments)
+                {
+                    var amount = payment.Num * payment.Price;
+                    csvLines.Add(
+                        $"{payment.ID};" +
+                        $"{payment.Date:dd.MM.yyyy};" +
+                        $"{EscapeCsvField(payment.User?.FIO ?? "")};" +
+                        $"{EscapeCsvField(payment.Category?.Name ?? "")};" +
+                        $"{EscapeCsvField(payment.Name)};" +
+                        $"{payment.Num};" +
+                        $"{payment.Price:N2};" +
+                        $"{amount:N2}"
+                    );
+                }
+
+                File.WriteAllLines(filePath, csvLines, System.Text.Encoding.UTF8);
+
+                MessageBox.Show($"Данные экспортированы успешно!\nФайл: {filePath}\n\nФайл откроется в Excel автоматически.",
+                    "Экспорт завершен", MessageBoxButton.OK, MessageBoxImage.Information);
+
+                // Открываем файл в ассоциированной программе (Excel)
+                System.Diagnostics.Process.Start(filePath);
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Ошибка при сохранении файла: {ex.Message}\n\nПроверьте:\n• Доступ к папке\n• Закрыт ли файл в другой программе",
+                    "Ошибка экспорта", MessageBoxButton.OK, MessageBoxImage.Error);
+            }
+        }
+
+        private string EscapeCsvField(string field)
+        {
+            if (field.Contains(";") || field.Contains("\"") || field.Contains("\n") || field.Contains("\r"))
+            {
+                return $"\"{field.Replace("\"", "\"\"")}\"";
+            }
+            return field;
+        }
+
+        private void ExportToWord()
+        {
+            try
+            {
+                var saveDialog = new SaveFileDialog
+                {
+                    Filter = "Word documents (*.docx)|*.docx",
+                    FileName = $"Платежи_{DateTime.Now:yyyyMMdd_HHmmss}",
+                    DefaultExt = ".docx"
+                };
+
+                if (saveDialog.ShowDialog() == true)
+                {
+                    Word.Application wordApp = null;
+                    Word.Document wordDoc = null;
 
                     try
                     {
-                        // Получаем данные
                         var payments = GetPaymentsForExport();
-                        if (payments == null || payments.Count == 0)
+                        if (payments.Count == 0)
                         {
                             MessageBox.Show("Нет данных для экспорта", "Информация");
                             return;
                         }
 
-                        // Создаем Excel пакет
-                        using (var excelPackage = new OfficeOpenXml.ExcelPackage())
+                        wordApp = new Word.Application();
+                        wordDoc = wordApp.Documents.Add();
+                        wordApp.Visible = false;
+
+                        // Заголовок
+                        Word.Paragraph title = wordDoc.Paragraphs.Add();
+                        title.Range.Text = "ОТЧЕТ ПО ПЛАТЕЖАМ";
+                        title.Range.Font.Bold = 1;
+                        title.Range.Font.Size = 16;
+                        title.Range.ParagraphFormat.Alignment = Word.WdParagraphAlignment.wdAlignParagraphCenter;
+                        title.Range.InsertParagraphAfter();
+
+                        // Информация о фильтрах
+                        Word.Paragraph info = wordDoc.Paragraphs.Add();
+                        info.Range.Text = GetFilterInfo();
+                        info.Range.Font.Size = 12;
+                        info.Range.InsertParagraphAfter();
+
+                        wordDoc.Paragraphs.Add().Range.InsertParagraphAfter();
+
+                        // Таблица
+                        if (payments.Count > 0)
                         {
-                            var worksheet = excelPackage.Workbook.Worksheets.Add("Платежи");
+                            Word.Table table = wordDoc.Tables.Add(
+                                wordDoc.Paragraphs.Add().Range,
+                                payments.Count + 1,
+                                8);
 
-                            // Простые заголовки
-                            worksheet.Cells[1, 1].Value = "ID";
-                            worksheet.Cells[1, 2].Value = "Дата";
-                            worksheet.Cells[1, 3].Value = "Пользователь";
-                            worksheet.Cells[1, 4].Value = "Категория";
-                            worksheet.Cells[1, 5].Value = "Название";
-                            worksheet.Cells[1, 6].Value = "Кол-во";
-                            worksheet.Cells[1, 7].Value = "Цена";
-                            worksheet.Cells[1, 8].Value = "Сумма";
+                            table.Borders.Enable = 1;
+                            table.Rows[1].Range.Font.Bold = 1;
 
-                            // Делаем заголовки жирными
-                            for (int i = 1; i <= 8; i++)
+                            // Заголовки таблицы
+                            string[] headers = { "ID", "Дата", "Пользователь", "Категория", "Название", "Кол-во", "Цена", "Сумма" };
+                            for (int i = 0; i < headers.Length; i++)
                             {
-                                worksheet.Cells[1, i].Style.Font.Bold = true;
+                                table.Cell(1, i + 1).Range.Text = headers[i];
+                                table.Cell(1, i + 1).Range.ParagraphFormat.Alignment = Word.WdParagraphAlignment.wdAlignParagraphCenter;
                             }
 
-                            // Заполняем данные
+                            // Данные
                             int row = 2;
+                            decimal totalAmount = 0;
                             foreach (var payment in payments)
                             {
-                                worksheet.Cells[row, 1].Value = payment.ID;
-                                worksheet.Cells[row, 2].Value = payment.Date.ToString("dd.MM.yyyy");
-                                worksheet.Cells[row, 3].Value = payment.User?.FIO ?? "";
-                                worksheet.Cells[row, 4].Value = payment.Category?.Name ?? "";
-                                worksheet.Cells[row, 5].Value = payment.Name;
-                                worksheet.Cells[row, 6].Value = payment.Num;
-                                worksheet.Cells[row, 7].Value = payment.Price;
-                                worksheet.Cells[row, 8].Value = payment.Num * payment.Price;
+                                var amount = payment.Num * payment.Price;
+                                totalAmount += amount;
+
+                                table.Cell(row, 1).Range.Text = payment.ID.ToString();
+                                table.Cell(row, 2).Range.Text = payment.Date.ToString("dd.MM.yyyy");
+                                table.Cell(row, 3).Range.Text = payment.User?.FIO ?? "";
+                                table.Cell(row, 4).Range.Text = payment.Category?.Name ?? "";
+                                table.Cell(row, 5).Range.Text = payment.Name;
+                                table.Cell(row, 6).Range.Text = payment.Num.ToString();
+                                table.Cell(row, 7).Range.Text = payment.Price.ToString("N2") + " руб.";
+                                table.Cell(row, 8).Range.Text = amount.ToString("N2") + " руб.";
                                 row++;
                             }
 
-                            // Автоподбор ширины столбцов
-                            worksheet.Cells[1, 1, row, 8].AutoFitColumns();
+                            // Итоги
+                            wordDoc.Paragraphs.Add().Range.InsertParagraphAfter();
+                            Word.Paragraph total = wordDoc.Paragraphs.Add();
+                            total.Range.Text = $"ИТОГО: {payments.Count} платежей на сумму {totalAmount:N2} руб.";
+                            total.Range.Font.Bold = 1;
+                            total.Range.Font.Size = 12;
 
-                            // Сохраняем файл
-                            FileInfo fileInfo = new FileInfo(saveDialog.FileName);
-                            excelPackage.SaveAs(fileInfo);
+                            // Сохраняем
+                            wordDoc.SaveAs2(saveDialog.FileName);
                         }
 
-                        MessageBox.Show($"Данные экспортированы успешно!\n\nФайл: {saveDialog.FileName}",
+                        MessageBox.Show($"Отчет успешно создан!\n\nФайл: {saveDialog.FileName}",
                             "Экспорт завершен", MessageBoxButton.OK, MessageBoxImage.Information);
+
+                        // Показываем документ пользователю
+                        wordApp.Visible = true;
                     }
                     catch (Exception ex)
                     {
-                        MessageBox.Show($"Ошибка при сохранении файла: {ex.Message}\n\n" +
-                            "Убедитесь, что:\n" +
-                            "• Файл не открыт в Excel или другой программе\n" +
-                            "• У вас есть права на запись в выбранную папку\n" +
-                            "• Попробуйте сохранить файл в другую папку",
-                            "Ошибка экспорта", MessageBoxButton.OK, MessageBoxImage.Error);
+                        MessageBox.Show($"Ошибка при создании отчета: {ex.Message}", "Ошибка экспорта");
                     }
                     finally
                     {
-                        // Восстанавливаем кнопку
-                        BtnExportPayments.Content = originalText;
-                        BtnExportPayments.IsEnabled = true;
+                        // Не закрываем Word, чтобы пользователь увидел документ
+                        // Освобождение ресурсов произойдет при закрытии Word пользователем
                     }
                 }
             }
             catch (Exception ex)
             {
                 MessageBox.Show($"Ошибка: {ex.Message}", "Ошибка");
-                BtnExportPayments.Content = "📊 Экспорт в Excel";
-                BtnExportPayments.IsEnabled = true;
             }
         }
 
-        // Новый метод для получения платежей для экспорта
+        private string GetFilterInfo()
+        {
+            var filters = new List<string>();
+
+            if (DpStartDate.SelectedDate != null && DpEndDate.SelectedDate != null)
+            {
+                filters.Add($"Период: {DpStartDate.SelectedDate.Value:dd.MM.yyyy} - {DpEndDate.SelectedDate.Value:dd.MM.yyyy}");
+            }
+
+            if (CbUser.SelectedItem is User selectedUser)
+            {
+                filters.Add($"Пользователь: {selectedUser.FIO}");
+            }
+
+            if (CbCategory.SelectedItem is Category selectedCategory)
+            {
+                filters.Add($"Категория: {selectedCategory.Name}");
+            }
+
+            if (!string.IsNullOrWhiteSpace(TbSearch.Text))
+            {
+                filters.Add($"Поиск: {TbSearch.Text}");
+            }
+
+            filters.Add($"Сгенерирован: {DateTime.Now:dd.MM.yyyy HH:mm}");
+
+            return string.Join(" | ", filters);
+        }
+
         private List<Payment> GetPaymentsForExport()
         {
             try
             {
-                using (var db = new Entities())
+                using (var db = new DEntities())
                 {
-                    // Начинаем с базового запроса
                     IQueryable<Payment> paymentsQuery = db.Payments
                         .Include(p => p.User)
                         .Include(p => p.Category);
 
-                    // Применяем фильтры только если они установлены
                     if (DpStartDate.SelectedDate != null)
                     {
                         paymentsQuery = paymentsQuery.Where(p => p.Date >= DpStartDate.SelectedDate);
@@ -340,7 +478,6 @@ namespace _322_Dorogan_Mihaela.Pages
                         paymentsQuery = paymentsQuery.Where(p => p.Date <= DpEndDate.SelectedDate);
                     }
 
-                    // Для комбобоксов проверяем SelectedItem
                     if (CbUser.SelectedItem != null && CbUser.SelectedItem is User selectedUser)
                     {
                         paymentsQuery = paymentsQuery.Where(p => p.UserID == selectedUser.ID);

@@ -6,6 +6,7 @@ using System.IO;
 using System.Linq;
 using System.Windows;
 using System.Windows.Controls;
+using Word = Microsoft.Office.Interop.Word;
 
 namespace _322_Dorogan_Mihaela.Pages
 {
@@ -17,8 +18,6 @@ namespace _322_Dorogan_Mihaela.Pages
         {
             InitializeComponent();
             _currentAdmin = admin;
-
-            // Загружаем данные после полной инициализации страницы
             this.Loaded += (s, e) => LoadUsers();
         }
 
@@ -26,17 +25,12 @@ namespace _322_Dorogan_Mihaela.Pages
         {
             try
             {
-                using (var db = new Entities())
+                using (var db = new DEntities())
                 {
                     var users = db.Users.AsQueryable();
-
-                    // Применение фильтров
                     users = ApplyFilters(users);
-
-                    // Применение сортировки
                     users = ApplySorting(users);
 
-                    // Проверяем, что DgUsers инициализирован
                     if (DgUsers != null)
                     {
                         DgUsers.ItemsSource = users.ToList();
@@ -52,7 +46,6 @@ namespace _322_Dorogan_Mihaela.Pages
 
         private IQueryable<User> ApplyFilters(IQueryable<User> users)
         {
-            // Проверяем, что элементы управления инициализированы
             if (TbSearch != null && !string.IsNullOrWhiteSpace(TbSearch.Text))
             {
                 var searchText = TbSearch.Text.ToLower();
@@ -61,7 +54,6 @@ namespace _322_Dorogan_Mihaela.Pages
                     u.Login.ToLower().Contains(searchText));
             }
 
-            // Фильтр по роли
             if (CbRoleFilter?.SelectedItem is ComboBoxItem roleItem && roleItem.Content.ToString() != "Все")
             {
                 users = users.Where(u => u.Role == roleItem.Content.ToString());
@@ -72,20 +64,18 @@ namespace _322_Dorogan_Mihaela.Pages
 
         private IQueryable<User> ApplySorting(IQueryable<User> users)
         {
-            // Проверяем, что ComboBox инициализирован
             if (CbSort == null || CbSort.SelectedIndex < 0)
                 return users.OrderBy(u => u.FIO);
 
             return CbSort.SelectedIndex switch
             {
-                0 => users.OrderBy(u => u.FIO), // По ФИО (А-Я)
-                1 => users.OrderByDescending(u => u.FIO), // По ФИО (Я-А)
-                2 => users.OrderByDescending(u => u.ID), // По дате регистрации
+                0 => users.OrderBy(u => u.FIO),
+                1 => users.OrderByDescending(u => u.FIO),
+                2 => users.OrderByDescending(u => u.ID),
                 _ => users.OrderBy(u => u.FIO)
             };
         }
 
-        // Остальные методы остаются без изменений...
         private void TbSearch_TextChanged(object sender, TextChangedEventArgs e)
         {
             LoadUsers();
@@ -128,7 +118,6 @@ namespace _322_Dorogan_Mihaela.Pages
             var user = (sender as Button)?.DataContext as User;
             if (user != null)
             {
-                // Нельзя удалить самого себя
                 if (user.ID == _currentAdmin.ID)
                 {
                     MessageBox.Show("Нельзя удалить собственный аккаунт!", "Ошибка",
@@ -146,9 +135,8 @@ namespace _322_Dorogan_Mihaela.Pages
                 {
                     try
                     {
-                        using (var db = new Entities())
+                        using (var db = new DEntities())
                         {
-                            // Проверяем есть ли связанные платежи
                             var hasPayments = db.Payments.Any(p => p.UserID == user.ID);
                             if (hasPayments)
                             {
@@ -192,7 +180,7 @@ namespace _322_Dorogan_Mihaela.Pages
                 {
                     try
                     {
-                        using (var db = new Entities())
+                        using (var db = new DEntities())
                         {
                             var userToUpdate = db.Users.Find(user.ID);
                             if (userToUpdate != null)
@@ -222,145 +210,271 @@ namespace _322_Dorogan_Mihaela.Pages
             }
         }
 
-        private void BtnExportUsers_Click(object sender, RoutedEventArgs e)
+        private void BtnExportUsersExcel_Click(object sender, RoutedEventArgs e)
+        {
+            ExportToExcel();
+        }
+
+        private void BtnExportUsersWord_Click(object sender, RoutedEventArgs e)
+        {
+            ExportToWord();
+        }
+
+        private void ExportToExcel()
         {
             try
             {
                 var saveDialog = new SaveFileDialog
                 {
-                    Filter = "Excel files (*.xlsx)|*.xlsx",
+                    Filter = "CSV files (*.csv)|*.csv|Excel files (*.xlsx)|*.xlsx",
                     FileName = $"Пользователи_{DateTime.Now:yyyyMMdd_HHmmss}",
-                    DefaultExt = ".xlsx"
+                    DefaultExt = ".csv"
                 };
 
                 if (saveDialog.ShowDialog() == true)
                 {
-                    // Простая визуальная обратная связь
-                    string originalText = BtnExportUsers.Content.ToString();
-                    BtnExportUsers.Content = "Экспорт...";
-                    BtnExportUsers.IsEnabled = false;
+                    // Всегда сохраняем как CSV для надежности
+                    string csvFilePath = Path.ChangeExtension(saveDialog.FileName, ".csv");
+                    ExportToCsv(csvFilePath);
+                }
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Ошибка экспорта: {ex.Message}", "Ошибка");
+            }
+        }
+
+        private void ExportToCsv(string filePath)
+        {
+            try
+            {
+                var users = GetUsersForExport();
+                if (users.Count == 0)
+                {
+                    MessageBox.Show("Нет данных для экспорта", "Информация");
+                    return;
+                }
+
+                var csvLines = new List<string>
+                {
+                    "ID;Логин;ФИО;Роль"
+                };
+
+                foreach (var user in users)
+                {
+                    csvLines.Add(
+                        $"{user.ID};" +
+                        $"{EscapeCsvField(user.Login)};" +
+                        $"{EscapeCsvField(user.FIO)};" +
+                        $"{user.Role}"
+                    );
+                }
+
+                File.WriteAllLines(filePath, csvLines, System.Text.Encoding.UTF8);
+
+                MessageBox.Show($"Данные экспортированы успешно!\nФайл: {filePath}\n\nФайл откроется в Excel автоматически.",
+                    "Экспорт завершен", MessageBoxButton.OK, MessageBoxImage.Information);
+
+                // Открываем файл в ассоциированной программе (Excel)
+                System.Diagnostics.Process.Start(filePath);
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Ошибка при сохранении файла: {ex.Message}\n\nПроверьте:\n• Доступ к папке\n• Закрыт ли файл в другой программе",
+                    "Ошибка экспорта", MessageBoxButton.OK, MessageBoxImage.Error);
+            }
+        }
+
+        private string EscapeCsvField(string field)
+        {
+            if (field.Contains(";") || field.Contains("\"") || field.Contains("\n") || field.Contains("\r"))
+            {
+                return $"\"{field.Replace("\"", "\"\"")}\"";
+            }
+            return field;
+        }
+
+        private void ExportToWord()
+        {
+            try
+            {
+                var saveDialog = new SaveFileDialog
+                {
+                    Filter = "Word documents (*.docx)|*.docx",
+                    FileName = $"Пользователи_{DateTime.Now:yyyyMMdd_HHmmss}",
+                    DefaultExt = ".docx"
+                };
+
+                if (saveDialog.ShowDialog() == true)
+                {
+                    Word.Application wordApp = null;
+                    Word.Document wordDoc = null;
 
                     try
                     {
-                        // Получаем данные
                         var users = GetUsersForExport();
-                        if (users == null || users.Count == 0)
+                        if (users.Count == 0)
                         {
                             MessageBox.Show("Нет данных для экспорта", "Информация");
                             return;
                         }
 
-                        // Создаем Excel пакет
-                        using (var excelPackage = new OfficeOpenXml.ExcelPackage())
+                        wordApp = new Word.Application();
+                        wordDoc = wordApp.Documents.Add();
+                        wordApp.Visible = false;
+
+                        // Заголовок
+                        Word.Paragraph title = wordDoc.Paragraphs.Add();
+                        title.Range.Text = "ОТЧЕТ ПО ПОЛЬЗОВАТЕЛЯМ";
+                        title.Range.Font.Bold = 1;
+                        title.Range.Font.Size = 16;
+                        title.Range.ParagraphFormat.Alignment = Word.WdParagraphAlignment.wdAlignParagraphCenter;
+                        title.Range.InsertParagraphAfter();
+
+                        // Информация о фильтрах
+                        Word.Paragraph info = wordDoc.Paragraphs.Add();
+                        info.Range.Text = GetFilterInfo();
+                        info.Range.Font.Size = 12;
+                        info.Range.InsertParagraphAfter();
+
+                        wordDoc.Paragraphs.Add().Range.InsertParagraphAfter();
+
+                        // Таблица
+                        if (users.Count > 0)
                         {
-                            var worksheet = excelPackage.Workbook.Worksheets.Add("Пользователи");
+                            Word.Table table = wordDoc.Tables.Add(
+                                wordDoc.Paragraphs.Add().Range,
+                                users.Count + 1,
+                                4);
 
-                            // Простые заголовки
-                            worksheet.Cells[1, 1].Value = "ID";
-                            worksheet.Cells[1, 2].Value = "Логин";
-                            worksheet.Cells[1, 3].Value = "ФИО";
-                            worksheet.Cells[1, 4].Value = "Роль";
+                            table.Borders.Enable = 1;
+                            table.Rows[1].Range.Font.Bold = 1;
 
-                            // Делаем заголовки жирными
-                            for (int i = 1; i <= 4; i++)
+                            // Заголовки таблицы
+                            string[] headers = { "ID", "Логин", "ФИО", "Роль" };
+                            for (int i = 0; i < headers.Length; i++)
                             {
-                                worksheet.Cells[1, i].Style.Font.Bold = true;
+                                table.Cell(1, i + 1).Range.Text = headers[i];
+                                table.Cell(1, i + 1).Range.ParagraphFormat.Alignment = Word.WdParagraphAlignment.wdAlignParagraphCenter;
                             }
 
-                            // Заполняем данные
+                            // Данные
                             int row = 2;
                             foreach (var user in users)
                             {
-                                worksheet.Cells[row, 1].Value = user.ID;
-                                worksheet.Cells[row, 2].Value = user.Login;
-                                worksheet.Cells[row, 3].Value = user.FIO;
-                                worksheet.Cells[row, 4].Value = user.Role;
+                                table.Cell(row, 1).Range.Text = user.ID.ToString();
+                                table.Cell(row, 2).Range.Text = user.Login;
+                                table.Cell(row, 3).Range.Text = user.FIO;
+                                table.Cell(row, 4).Range.Text = user.Role;
                                 row++;
                             }
 
-                            // Автоподбор ширины столбцов
-                            worksheet.Cells[1, 1, row, 4].AutoFitColumns();
+                            // Статистика
+                            wordDoc.Paragraphs.Add().Range.InsertParagraphAfter();
+                            Word.Paragraph stats = wordDoc.Paragraphs.Add();
+                            var adminCount = users.Count(u => u.Role == "Admin");
+                            var userCount = users.Count(u => u.Role == "User");
+                            stats.Range.Text = $"СТАТИСТИКА:\nВсего пользователей: {users.Count}\nАдминистраторов: {adminCount}\nОбычных пользователей: {userCount}";
+                            stats.Range.Font.Bold = 1;
+                            stats.Range.Font.Size = 12;
 
-                            // Сохраняем файл
-                            FileInfo fileInfo = new FileInfo(saveDialog.FileName);
-                            excelPackage.SaveAs(fileInfo);
+                            // Сохраняем
+                            wordDoc.SaveAs2(saveDialog.FileName);
                         }
 
-                        MessageBox.Show($"Данные экспортированы успешно!\n\nФайл: {saveDialog.FileName}",
+                        MessageBox.Show($"Отчет успешно создан!\n\nФайл: {saveDialog.FileName}",
                             "Экспорт завершен", MessageBoxButton.OK, MessageBoxImage.Information);
+
+                        // Показываем документ пользователю
+                        wordApp.Visible = true;
                     }
                     catch (Exception ex)
                     {
-                        MessageBox.Show($"Ошибка при сохранении файла: {ex.Message}\n\n" +
-                            "Убедитесь, что:\n" +
-                            "• Файл не открыт в другой программе\n" +
-                            "• У вас есть права на запись в выбранную папку\n" +
-                            "• Имя файла не содержит запрещенных символов",
-                            "Ошибка экспорта", MessageBoxButton.OK, MessageBoxImage.Error);
+                        MessageBox.Show($"Ошибка при создании отчета: {ex.Message}", "Ошибка экспорта");
                     }
                     finally
                     {
-                        // Восстанавливаем кнопку
-                        BtnExportUsers.Content = originalText;
-                        BtnExportUsers.IsEnabled = true;
+                        // Не закрываем Word, чтобы пользователь увидел документ
                     }
                 }
             }
             catch (Exception ex)
             {
                 MessageBox.Show($"Ошибка: {ex.Message}", "Ошибка");
-                BtnExportUsers.Content = "Экспорт в Excel";
-                BtnExportUsers.IsEnabled = true;
             }
         }
 
-        // Новый метод для получения пользователей для экспорта
-        private List<User> GetUsersForExport()
-{
-    try
-    {
-        using (var db = new Entities())
+        private string GetFilterInfo()
         {
-            var usersQuery = db.Users.AsQueryable();
+            var filters = new List<string>();
 
-            // Применяем фильтры
             if (TbSearch != null && !string.IsNullOrWhiteSpace(TbSearch.Text))
             {
-                var searchText = TbSearch.Text.ToLower();
-                usersQuery = usersQuery.Where(u =>
-                    u.FIO.ToLower().Contains(searchText) ||
-                    u.Login.ToLower().Contains(searchText));
+                filters.Add($"Поиск: {TbSearch.Text}");
             }
 
-            // Фильтр по роли
             if (CbRoleFilter?.SelectedItem is ComboBoxItem roleItem && roleItem.Content.ToString() != "Все")
             {
-                usersQuery = usersQuery.Where(u => u.Role == roleItem.Content.ToString());
+                filters.Add($"Роль: {roleItem.Content.ToString()}");
             }
 
-            // Применяем сортировку
-            if (CbSort == null || CbSort.SelectedIndex < 0)
-                usersQuery = usersQuery.OrderBy(u => u.FIO);
-            else
+            if (CbSort != null && CbSort.SelectedIndex >= 0)
             {
-                switch (CbSort.SelectedIndex)
+                var sortText = CbSort.SelectedItem.ToString().Replace("System.Windows.Controls.ComboBoxItem: ", "");
+                filters.Add($"Сортировка: {sortText}");
+            }
+
+            filters.Add($"Сгенерирован: {DateTime.Now:dd.MM.yyyy HH:mm}");
+
+            return string.Join(" | ", filters);
+        }
+
+        private List<User> GetUsersForExport()
+        {
+            try
+            {
+                using (var db = new DEntities())
                 {
-                    case 0: usersQuery = usersQuery.OrderBy(u => u.FIO); break;
-                    case 1: usersQuery = usersQuery.OrderByDescending(u => u.FIO); break;
-                    case 2: usersQuery = usersQuery.OrderByDescending(u => u.ID); break;
-                    default: usersQuery = usersQuery.OrderBy(u => u.FIO); break;
+                    var usersQuery = db.Users.AsQueryable();
+
+                    // Применяем фильтры
+                    if (TbSearch != null && !string.IsNullOrWhiteSpace(TbSearch.Text))
+                    {
+                        var searchText = TbSearch.Text.ToLower();
+                        usersQuery = usersQuery.Where(u =>
+                            u.FIO.ToLower().Contains(searchText) ||
+                            u.Login.ToLower().Contains(searchText));
+                    }
+
+                    // Фильтр по роли
+                    if (CbRoleFilter?.SelectedItem is ComboBoxItem roleItem && roleItem.Content.ToString() != "Все")
+                    {
+                        usersQuery = usersQuery.Where(u => u.Role == roleItem.Content.ToString());
+                    }
+
+                    // Применяем сортировку
+                    if (CbSort == null || CbSort.SelectedIndex < 0)
+                        usersQuery = usersQuery.OrderBy(u => u.FIO);
+                    else
+                    {
+                        switch (CbSort.SelectedIndex)
+                        {
+                            case 0: usersQuery = usersQuery.OrderBy(u => u.FIO); break;
+                            case 1: usersQuery = usersQuery.OrderByDescending(u => u.FIO); break;
+                            case 2: usersQuery = usersQuery.OrderByDescending(u => u.ID); break;
+                            default: usersQuery = usersQuery.OrderBy(u => u.FIO); break;
+                        }
+                    }
+
+                    return usersQuery.ToList();
                 }
             }
-
-            return usersQuery.ToList();
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Ошибка получения данных для экспорта: {ex.Message}");
+                return new List<User>();
+            }
         }
-    }
-    catch (Exception ex)
-    {
-        MessageBox.Show($"Ошибка получения данных для экспорта: {ex.Message}");
-        return new List<User>();
-    }
-}
 
         private void BtnRefresh_Click(object sender, RoutedEventArgs e)
         {

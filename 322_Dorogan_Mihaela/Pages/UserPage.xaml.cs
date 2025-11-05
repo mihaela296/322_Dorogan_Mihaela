@@ -116,7 +116,7 @@ namespace _322_Dorogan_Mihaela.Pages
         {
             try
             {
-                using (var db = new Entities())
+                using (var db = new DEntities())
                 {
                     var categories = db.Categories.OrderBy(c => c.Name).ToList();
                     CbCategory.ItemsSource = categories;
@@ -133,7 +133,7 @@ namespace _322_Dorogan_Mihaela.Pages
         {
             try
             {
-                using (var db = new Entities())
+                using (var db = new DEntities())
                 {
                     var paymentsQuery = db.Payments
                         .Include(p => p.Category)
@@ -183,7 +183,7 @@ namespace _322_Dorogan_Mihaela.Pages
         {
             try
             {
-                using (var db = new Entities())
+                using (var db = new DEntities())
                 {
                     var totalSum = db.Payments
                         .Where(p => p.UserID == _currentUser.ID)
@@ -230,7 +230,7 @@ namespace _322_Dorogan_Mihaela.Pages
                     InitializeChart();
                 }
 
-                using (var db = new Entities())
+                using (var db = new DEntities())
                 {
                     // Проверяем контекст базы данных
                     if (db == null)
@@ -300,7 +300,7 @@ namespace _322_Dorogan_Mihaela.Pages
             }
         }
 
-        private void LoadCategoryChart(Series series, Entities db)
+        private void LoadCategoryChart(Series series, DEntities db)
         {
             try
             {
@@ -384,7 +384,7 @@ namespace _322_Dorogan_Mihaela.Pages
             }
         }
 
-        private void LoadMonthlyChart(Series series, Entities db)
+        private void LoadMonthlyChart(Series series,DEntities db)
         {
             try
             {
@@ -576,7 +576,7 @@ namespace _322_Dorogan_Mihaela.Pages
                 {
                     try
                     {
-                        using (var db = new Entities())
+                        using (var db = new DEntities())
                         {
                             var paymentToDelete = db.Payments.Find(paymentId);
                             if (paymentToDelete != null)

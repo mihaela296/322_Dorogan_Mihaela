@@ -99,7 +99,7 @@ namespace _322_Dorogan_Mihaela.Pages
         {
             try
             {
-                using (var db = new Entities())
+                using (var db = new DEntities())
                 {
                     // Загружаем ВСЕ данные без фильтрации по дате
                     var categoryData = db.Payments
@@ -178,7 +178,7 @@ namespace _322_Dorogan_Mihaela.Pages
             {
                 var topCount = GetTopCount(); // Получаем количество пользователей для отображения
 
-                using (var db = new Entities())
+                using (var db = new DEntities())
                 {
                     // Загружаем ВСЕ данные без фильтрации по дате
                     var userQuery = db.Payments
@@ -253,7 +253,7 @@ namespace _322_Dorogan_Mihaela.Pages
                     return;
                 }
 
-                using (var db = new Entities())
+                using (var db = new DEntities())
                 {
                     string groupBy = "По дням"; // значение по умолчанию
 

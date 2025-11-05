@@ -1,4 +1,4 @@
-﻿// Создание кода T4 для модели "C:\Users\SASA\source\repos\322_Dorogan_Mihaela\322_Dorogan_Mihaela\Model1.edmx" включено. 
+﻿// Создание кода T4 для модели "C:\Users\SASA\Source\Repos\322_Dorogan_Mihaelaaa\322_Dorogan_Mihaela\Model1.edmx" включено. 
 // Чтобы включить формирование кода прежних версий, измените значение свойства "Стратегия создания кода" конструктора
 // на "Legacy ObjectContext". Это свойство доступно в окне "Свойства", если модель
 // открыта в конструкторе.

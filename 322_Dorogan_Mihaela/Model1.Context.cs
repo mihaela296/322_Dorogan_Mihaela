@@ -12,33 +12,40 @@ namespace _322_Dorogan_Mihaela
     using System;
     using System.Data.Entity;
     using System.Data.Entity.Infrastructure;
-
-    // Model.Context.cs
-    public partial class Entities : DbContext
+    
+    public partial class DEntities : DbContext
     {
-        private static Entities _context;
-
-        public Entities()
-            : base("name=Entities")
+        public DEntities()
+            : base("name=DEntities")
         {
-            // Проверяем существование базы данных и создаем при необходимости
-            if (!Database.Exists())
-            {
-                Database.Create();
-            }
         }
 
-        public static Entities GetContext()
+        private static DEntities _context;//приватная переменная
+
+        public static DEntities GetContext()
         {
-            if (_context == null) _context = new Entities();
+            if (_context == null) _context = new DEntities();
             return _context;
         }
-
         protected override void OnModelCreating(DbModelBuilder modelBuilder)
         {
-            // Отключаем соглашения о множественном числе
-            modelBuilder.Conventions.Remove<System.Data.Entity.ModelConfiguration.Conventions.PluralizingTableNameConvention>();
+            // Для Category без навигационного свойства
+            modelBuilder.Entity<Payment>()
+                .HasRequired(p => p.Category)
+                .WithMany()  // Без указания свойства
+                .HasForeignKey(p => p.CategoryID)
+                .WillCascadeOnDelete(false);
+
+            // Для User с навигационным свойством
+            modelBuilder.Entity<Payment>()
+                .HasRequired(p => p.User)
+                .WithMany(u => u.Payments)
+                .HasForeignKey(p => p.UserID)
+                .WillCascadeOnDelete(false);
+
+            base.OnModelCreating(modelBuilder);
         }
+
 
         public virtual DbSet<Category> Categories { get; set; }
         public virtual DbSet<Payment> Payments { get; set; }

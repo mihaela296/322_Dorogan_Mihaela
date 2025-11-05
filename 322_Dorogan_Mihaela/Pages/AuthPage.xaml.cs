@@ -118,7 +118,7 @@ namespace _322_Dorogan_Mihaela.Pages
             {
                 string hashedPassword = GetHash(PbPassword.Password);
 
-                using (var db = new Entities())
+                using (var db = new DEntities())
                 {
                     var user = db.Users
                         .AsNoTracking()

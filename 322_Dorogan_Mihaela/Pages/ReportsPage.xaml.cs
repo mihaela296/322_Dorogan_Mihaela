@@ -39,7 +39,7 @@ namespace _322_Dorogan_Mihaela.Pages
                 DpSummaryReportEnd.SelectedDate = endDate;
 
                 // Загрузка данных для комбобоксов
-                using (var db = new Entities())
+                using (var db = new DEntities())
                 {
                     var users = db.Users.OrderBy(u => u.FIO).ToList();
                     CbUserReport.ItemsSource = users;
@@ -99,7 +99,7 @@ namespace _322_Dorogan_Mihaela.Pages
                 var endDate = DpUserReportEnd.SelectedDate.Value;
                 var selectedUser = CbUserReport.SelectedItem as User;
 
-                using (var db = new Entities())
+                using (var db = new DEntities())
                 {
                     var paymentsQuery = db.Payments
                         .Include(p => p.User)
@@ -244,7 +244,7 @@ namespace _322_Dorogan_Mihaela.Pages
                     var endDate = DpUserReportEnd.SelectedDate.Value;
                     var selectedUser = CbUserReport.SelectedItem as User;
 
-                    using (var db = new Entities())
+                    using (var db = new DEntities())
                     {
                         var paymentsQuery = db.Payments
                             .Include(p => p.User)
@@ -405,7 +405,7 @@ namespace _322_Dorogan_Mihaela.Pages
                 var endDate = DpCategoryReportEnd.SelectedDate.Value;
                 var selectedCategory = CbCategoryReport.SelectedItem as Category;
 
-                using (var db = new Entities())
+                using (var db = new DEntities())
                 {
                     var paymentsQuery = db.Payments
                         .Include(p => p.Category)
@@ -529,7 +529,7 @@ namespace _322_Dorogan_Mihaela.Pages
                     var endDate = DpCategoryReportEnd.SelectedDate.Value;
                     var selectedCategory = CbCategoryReport.SelectedItem as Category;
 
-                    using (var db = new Entities())
+                    using (var db = new DEntities())
                     {
                         var paymentsQuery = db.Payments
                             .Include(p => p.Category)
@@ -655,7 +655,7 @@ namespace _322_Dorogan_Mihaela.Pages
                 var startDate = DpSummaryReportStart.SelectedDate.Value;
                 var endDate = DpSummaryReportEnd.SelectedDate.Value;
 
-                using (var db = new Entities())
+                using (var db = new DEntities())
                 {
                     // Основная статистика
                     var totalPayments = db.Payments.Count(p => p.Date >= startDate && p.Date <= endDate);
@@ -801,7 +801,7 @@ namespace _322_Dorogan_Mihaela.Pages
                     var startDate = DpSummaryReportStart.SelectedDate.Value;
                     var endDate = DpSummaryReportEnd.SelectedDate.Value;
 
-                    using (var db = new Entities())
+                    using (var db = new DEntities())
                     {
                         // Основная статистика
                         var totalPayments = db.Payments.Count(p => p.Date >= startDate && p.Date <= endDate);
@@ -903,7 +903,7 @@ namespace _322_Dorogan_Mihaela.Pages
 
         private void ExportAllDataToCsv(string filePath)
         {
-            using (var db = new Entities())
+            using (var db = new DEntities())
             {
                 var payments = db.Payments
                     .Include(p => p.User)
@@ -943,7 +943,7 @@ namespace _322_Dorogan_Mihaela.Pages
         {
             try
             {
-                using (var db = new Entities())
+                using (var db = new DEntities())
                 {
                     var totalAmount = db.Payments.Sum(p => (decimal?)(p.Num * p.Price)) ?? 0;
                     var avgPayment = db.Payments.Average(p => (decimal?)(p.Num * p.Price)) ?? 0;

@@ -69,7 +69,7 @@ namespace _322_Dorogan_Mihaela.Pages
         {
             try
             {
-                using (var db = new Entities())
+                using (var db = new DEntities())
                 {
                     // Создаем базу если не существует
                     if (!db.Database.Exists())
@@ -88,7 +88,7 @@ namespace _322_Dorogan_Mihaela.Pages
             }
         }
 
-        private void AddInitialData(Entities db)
+        private void AddInitialData(DEntities db)
         {
             // Добавляем администратора по умолчанию
             if (!db.Users.Any(u => u.Login == "admin"))
@@ -128,7 +128,7 @@ namespace _322_Dorogan_Mihaela.Pages
         {
             try
             {
-                using (var db = new Entities())
+                using (var db = new DEntities())
                 {
                     var userCount = db.Users.Count();
                     var categoryCount = db.Categories.Count();
@@ -237,7 +237,7 @@ namespace _322_Dorogan_Mihaela.Pages
             // Проверка уникальности логина и сохранение
             try
             {
-                using (var db = new Entities())
+                using (var db = new DEntities())
                 {
                     // Проверяем уникальность логина
                     if (db.Users.Any(u => u.Login == TbLogin.Text.Trim()))

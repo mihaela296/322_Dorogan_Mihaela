@@ -32,7 +32,7 @@ namespace _322_Dorogan_Mihaela
         {
             try
             {
-                using (var db = new Entities())
+                using (var db = new DEntities())
                 {
                     // Создаем базу если не существует
                     if (!db.Database.Exists())
@@ -51,7 +51,7 @@ namespace _322_Dorogan_Mihaela
             }
         }
 
-        private void AddInitialData(Entities db)
+        private void AddInitialData(DEntities db)
         {
             // Добавляем администратора по умолчанию
             if (!db.Users.Any(u => u.Login == "admin"))

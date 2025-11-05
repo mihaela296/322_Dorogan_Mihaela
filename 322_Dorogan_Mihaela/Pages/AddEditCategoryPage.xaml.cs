@@ -55,7 +55,7 @@ namespace _322_Dorogan_Mihaela.Pages
 
             try
             {
-                using (var db = new Entities())
+                using (var db = new DEntities())
                 {
                     if (_isNewCategory)
                     {
