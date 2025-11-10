@@ -166,40 +166,61 @@ namespace _322_Dorogan_Mihaela.Pages
 
         private void BtnRegister_Click(object sender, RoutedEventArgs e)
         {
+            // Сначала очищаем предыдущие ошибки
+            ClearError();
+
             // Валидация полей
+            bool hasError = false;
+            string errorMessage = "";
+
             if (string.IsNullOrWhiteSpace(TbLogin.Text))
             {
-                ShowError("Введите логин!");
-                TbLogin.Focus();
-                return;
+                errorMessage += "• Введите логин!\n";
+                hasError = true;
             }
 
             if (string.IsNullOrWhiteSpace(PbPassword.Password))
             {
-                ShowError("Введите пароль!");
-                PbPassword.Focus();
-                return;
+                errorMessage += "• Введите пароль!\n";
+                hasError = true;
             }
 
             if (string.IsNullOrWhiteSpace(PbConfirmPassword.Password))
             {
-                ShowError("Подтвердите пароль!");
-                PbConfirmPassword.Focus();
-                return;
+                errorMessage += "• Подтвердите пароль!\n";
+                hasError = true;
             }
 
             if (string.IsNullOrWhiteSpace(TbFIO.Text))
             {
-                ShowError("Введите ФИО!");
-                TbFIO.Focus();
-                return;
+                errorMessage += "• Введите ФИО!\n";
+                hasError = true;
             }
 
             // Проверка выбора роли
             if (CbRole.SelectedItem == null)
             {
-                ShowError("Выберите роль пользователя!");
-                CbRole.Focus();
+                errorMessage += "• Выберите роль пользователя!\n";
+                hasError = true;
+            }
+
+            // Если есть ошибки валидации - показываем их все сразу
+            if (hasError)
+            {
+                ShowError(errorMessage.Trim());
+
+                // Фокусируемся на первом незаполненном поле
+                if (string.IsNullOrWhiteSpace(TbLogin.Text))
+                    TbLogin.Focus();
+                else if (string.IsNullOrWhiteSpace(PbPassword.Password))
+                    PbPassword.Focus();
+                else if (string.IsNullOrWhiteSpace(PbConfirmPassword.Password))
+                    PbConfirmPassword.Focus();
+                else if (string.IsNullOrWhiteSpace(TbFIO.Text))
+                    TbFIO.Focus();
+                else if (CbRole.SelectedItem == null)
+                    CbRole.Focus();
+
                 return;
             }
 

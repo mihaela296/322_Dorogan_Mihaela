@@ -11,7 +11,7 @@ namespace _322_Dorogan_Mihaela
             base.OnStartup(e);
 
             // Инициализация базы данных при запуске
-            InitializeDatabase();
+            //InitializeDatabase();
 
             // Глобальная обработка необработанных исключений
             AppDomain.CurrentDomain.UnhandledException += (s, args) =>
@@ -32,22 +32,38 @@ namespace _322_Dorogan_Mihaela
         {
             try
             {
+                MessageBox.Show("Начало инициализации базы данных...");
+
                 using (var db = new DEntities())
                 {
-                    // Создаем базу если не существует
-                    if (!db.Database.Exists())
-                    {
-                        db.Database.Create();
+                    MessageBox.Show("Подключение к базе данных создано");
 
-                        // Добавляем начальные данные
+                    // Пробуем просто подключиться к базе
+                    if (db.Database.Exists())
+                    {
+                        MessageBox.Show("База данных существует");
+                        AddInitialData(db);
+                    }
+                    else
+                    {
+                        MessageBox.Show("База данных не существует, создаем...");
+                        db.Database.Create();
+                        MessageBox.Show("База данных создана");
                         AddInitialData(db);
                     }
                 }
+
+                MessageBox.Show("Инициализация завершена успешно");
+            }
+            catch (System.Data.SqlClient.SqlException sqlEx)
+            {
+                MessageBox.Show($"Ошибка SQL: {sqlEx.Message}\n\nПроверьте:\n1. Установлен ли SQL Server Express\n2. Запущена ли служба SQL Server",
+                    "Ошибка базы данных", MessageBoxButton.OK, MessageBoxImage.Error);
             }
             catch (Exception ex)
             {
-                MessageBox.Show($"Ошибка инициализации базы данных: {ex.Message}", "Ошибка",
-                    MessageBoxButton.OK, MessageBoxImage.Error);
+                MessageBox.Show($"Общая ошибка: {ex.Message}\n\n{ex.StackTrace}",
+                    "Ошибка приложения", MessageBoxButton.OK, MessageBoxImage.Error);
             }
         }
 

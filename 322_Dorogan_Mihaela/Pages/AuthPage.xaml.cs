@@ -93,6 +93,8 @@ namespace _322_Dorogan_Mihaela.Pages
                 {
                     SpCaptcha.Visibility = Visibility.Visible;
                     GenerateCaptcha();
+                    ShowError("Пароль неверный! Введите капчу для продолжения.");
+                    return;
                 }
 
                 if (string.IsNullOrWhiteSpace(TbCaptchaInput.Text))
@@ -105,7 +107,8 @@ namespace _322_Dorogan_Mihaela.Pages
                 if (TbCaptchaInput.Text != TbCaptcha.Text)
                 {
                     _failedAttempts++;
-                    ShowError($"Неверно введена капча! Осталось попыток: {5 - _failedAttempts}");
+                    int remainingAttempts = 5 - _failedAttempts;
+                    ShowError($"Неверно введена капча! Осталось попыток: {remainingAttempts}");
                     GenerateCaptcha();
                     TbCaptchaInput.Clear();
                     TbCaptchaInput.Focus();
@@ -128,24 +131,27 @@ namespace _322_Dorogan_Mihaela.Pages
                     {
                         _failedAttempts++;
 
+                        // Очищаем пароль перед показом ошибки
+                        PbPassword.Clear();
+
                         if (_failedAttempts >= 3 && SpCaptcha.Visibility != Visibility.Visible)
                         {
                             SpCaptcha.Visibility = Visibility.Visible;
                             GenerateCaptcha();
-                            ShowError("Неверный логин или пароль! Введите капчу для продолжения.");
+                            ShowError("Пароль неверный! Введите капчу для продолжения.");
+                            TbCaptchaInput.Focus();
                         }
                         else if (_failedAttempts >= 5)
                         {
                             ShowError("Превышено количество попыток входа. Попробуйте позже.");
                             BtnLogin.IsEnabled = false;
+                            PbPassword.Focus();
                         }
                         else
                         {
-                            ShowError($"Неверный логин или пароль! Попытка {_failedAttempts} из 5");
+                            ShowError($"Пароль неверный! Попытка {_failedAttempts} из 3");
+                            PbPassword.Focus();
                         }
-
-                        PbPassword.Clear();
-                        PbPassword.Focus();
                         return;
                     }
 
@@ -173,8 +179,11 @@ namespace _322_Dorogan_Mihaela.Pages
             catch (Exception ex)
             {
                 ShowError($"Ошибка при авторизации: {ex.Message}");
+                PbPassword.Focus();
             }
         }
+
+
 
         private void BtnRegister_Click(object sender, RoutedEventArgs e)
         {
